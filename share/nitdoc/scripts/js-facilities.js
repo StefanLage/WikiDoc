@@ -838,7 +838,7 @@ function getBlobsTree(tree)
             //}
         },
         type: "GET", 
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+":wq/git/trees/" + tree, 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees/" + tree, 
         async:false,
         dataType:'json',
 
