@@ -499,7 +499,7 @@ fieldset {
     margin-bottom: 20px; 
 }
 
-#login, #password{
+#login, #password, #commitMessage{
 	border: 1px solid #ccc;
     padding: 6px 7px;
     outline: none;

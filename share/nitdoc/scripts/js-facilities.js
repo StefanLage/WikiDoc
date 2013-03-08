@@ -17,6 +17,7 @@ var toto = "";
 var githubRepo = "";
 var userName = "";
 var idBlob;
+var commitMessage = "";
 
 
 /*
@@ -481,6 +482,11 @@ $(document).ready(function() {
 		userName = $('#login').val();
 		userB64 = "Basic " +  base64.encode(userName+':'+$('#password').val());
 		githubRepo = $('#repoName').attr('name');
+		commitMessage = $('#commitMessage').val();
+		
+		if(commitMessage == ""){
+			commitMessage = "New commit";
+		}
 
 		$('#fade , #modal').fadeOut(function() {
 			$('#login').val("");
@@ -735,7 +741,7 @@ function setNewCommit()
         },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits", 
-        data:'{ "message" : "New commit", '+
+        data:'{ "message" : "'+ commitMessage +'", '+
                 '"parents" :"'+shaLastCommit+'",'+ 
                 '"tree": "'+shaNewTree+'"'+
              '}',
