@@ -321,7 +321,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array with some `items'.
+	# Create an array with some
 	init with_items(objects: E...)
 	do
 		_items = objects._items
@@ -338,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count'
+	# Create an array of `count' elements
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
