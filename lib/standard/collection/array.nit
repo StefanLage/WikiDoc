@@ -1,4 +1,3 @@
- Create an empty array.
 # This file is part of NIT ( http://www.nitlanguage.org ).
 #
 # Copyright 2004-2008 Jean Privat <jean@pryen.org>
@@ -339,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' elements
+	# Create an array of `count'
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
