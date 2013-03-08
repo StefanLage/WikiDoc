@@ -451,7 +451,7 @@ $(document).ready(function() {
          		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
      	}	*/
 
-     	$('#modal' ).show().prepend('<a href="#" class="close"><img src="resources/icons/close.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
+     	$('#modal' ).show().prepend('<a href="" class="close"><img src="resources/icons/close.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
 			 //Effet fade-in du fond opaque
 		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
 		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
