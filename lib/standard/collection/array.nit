@@ -1,3 +1,4 @@
+ Create an empty array.
 # This file is part of NIT ( http://www.nitlanguage.org ).
 #
 # Copyright 2004-2008 Jean Privat <jean@pryen.org>
