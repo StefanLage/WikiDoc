@@ -16,6 +16,7 @@ var text = "";
 var toto = "";
 var githubRepo = "";
 var userName = "";
+var idBlob;
 
 
 /*
@@ -450,25 +451,19 @@ $(document).ready(function() {
          		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
      	}	*/
 
-     	$('#modal' ).show().prepend('<a href="#" class="close"><img src="resources/icons/x.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
+     	$('#modal' ).show().prepend('<a href="#" class="close"><img src="resources/icons/close.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
 			 //Effet fade-in du fond opaque
 		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
 		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
 		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+
+		idBlob = $(this).prev().attr('id');
 
      	$(this).hide();
      	$(this).prev().show();
      	$(this).prev().prev().show();        
 	});
 
-	
-	$('.signature').click(function(){
-		$('#modal' ).show().prepend('<a href="#" class="close"><img src="resources/icons/x.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
-			 //Effet fade-in du fond opaque
-		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
-		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
-		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-	});
 
 	//Close Popups and Fade Layer
 	$('body').on('click', 'a.close, #fade', function() { //Au clic sur le body...
@@ -479,16 +474,17 @@ $(document).ready(function() {
 
 	$('#loginAction').click(function(){
 
-		var id;
 		var text;
 		var url;
 		var line;
 
 		userName = $('#login').val();
 		userB64 = "Basic " +  base64.encode(userName+':'+$('#password').val());
-		githubRepo = $('repoName').attr('name');
+		githubRepo = $('#repoName').attr('name');
 
 		$('#fade , #modal').fadeOut(function() {
+			$('#login').val("");
+			$('#password').val("");
 			$('#fade, a.close').remove();  
 		});
 
@@ -496,7 +492,7 @@ $(document).ready(function() {
          		this.value = (this.defaultValue ? this.defaultValue : '');
      	}
      	else{
-     			id = $(this).prev().attr('id');
+     			
      			text = this.value.replace("'", "`");
      			pathFile = "/lib/standard/collection/array.nit";
      			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
@@ -529,7 +525,7 @@ $(document).ready(function() {
 
          		$(this).prev().html(this.value);*/
          		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + id;
+         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
 				$.when(getFileContent(pathBlob, $(this).prev().text(), this.value)).done(function(){
 
 						//alert(text);
@@ -539,7 +535,7 @@ $(document).ready(function() {
 						
 				});
 				
-				$(this).prev().html(this.value);
+				//$(this).prev().html(this.value);
          		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
      	}
 	})

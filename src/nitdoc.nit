@@ -28,6 +28,7 @@ class DocContext
 	super AbstractCompiler
 	# Destination directory
 	readable writable var _dir: String = "doc"
+	var github_repo: String = ""
 
 	# Content of a generated file
 	var _stage_context: StageContext = new StageContext(null)
@@ -92,7 +93,7 @@ class DocContext
 	readable var _opt_custom_title: OptionString = new OptionString("Title displayed in the top of the Overview page and as suffix of all page names", "--custom-title")
 	readable var _opt_custom_overview_text: OptionString = new OptionString("Text displayed as introduction of Overview page before the modules list", "--custom-overview-text")
 	readable var _opt_custom_footer_text: OptionString = new OptionString("Text displayed as footer of all pages", "--custom-footer-text")
-	readable var _opt_github_repo_name: OptionString = new OptionString("GitHub repo name", "-git")
+	readable var _opt_github_repo_name: OptionString = new OptionString("GitHub repo name", "--git")
 	var sharedir: nullable String
 
 	fun public_only: Bool
@@ -115,8 +116,6 @@ class DocContext
 
 	redef fun perform_work(mods)
 	do
-		var githubrepo = self._opt_github_repo_name.value
-
 		mainmod = new MMVirtualModule(self, mods)
 
 		dir.mkdir
@@ -188,10 +187,8 @@ class DocContext
 		# generate the index
 		self.filename = "index.html"
 		clear
-		if githubrepo != "" then add("<div id=\"repoName\" name=\"{githubrepo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\">")
-		add("<form class=\"clearfix\"><div><label for=\"login\">UserName</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><input id=\"loginAction\" type=\"button\" value=\"Login\"></form></div>")
-		add("")
+		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
+		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">UserName</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><input id=\"loginAction\" type=\"button\" value=\"Login\"></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Overview | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -236,6 +233,8 @@ class DocContext
 			self.filename = mod.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">{mod.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
+			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
+			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">UserName</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><input id=\"loginAction\" type=\"button\" value=\"Login\"></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{mod.name} module | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -253,6 +252,8 @@ class DocContext
 			self.filename = c.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li>{c.global.intro.mmmodule.toplevel_owner.html_link(self)}</li><li class=\"current\">{c.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
+			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
+			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">UserName</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><input id=\"loginAction\" type=\"button\" value=\"Login\"></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{c.name} class | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -267,6 +268,8 @@ class DocContext
 		self.filename = "fullindex"
 		action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">Full Index</li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 		clear
+		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
+		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">UserName</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><input id=\"loginAction\" type=\"button\" value=\"Login\"></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Full Index | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -390,6 +393,9 @@ class DocContext
 			end
 
 		end
+		
+		var git = opt_github_repo_name.value
+		if git != null then github_repo = git
 	end
 
 	redef fun handle_property_conflict(lc, impls)
