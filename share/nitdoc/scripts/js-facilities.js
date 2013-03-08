@@ -16,8 +16,11 @@ var text = "";
 var toto = "";
 var githubRepo = "";
 var userName = "";
+var password = "";
 var idBlob;
 var commitMessage = "";
+var preElement;
+var newComment;
 
 
 /*
@@ -392,6 +395,7 @@ $(document).ready(function() {
         	$(this).next().show();        
     		$(this).next().height($(this).next().prop("scrollHeight"));
         	$(this).next().select();
+        	preElement = $(this);
     	});
 
 	// Close editing
@@ -459,6 +463,8 @@ $(document).ready(function() {
 		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
 		idBlob = $(this).prev().attr('id');
+		newComment = this.value;
+		
 
      	$(this).hide();
      	$(this).prev().show();
@@ -480,7 +486,8 @@ $(document).ready(function() {
 		var line;
 
 		userName = $('#login').val();
-		userB64 = "Basic " +  base64.encode(userName+':'+$('#password').val());
+		password = $('#password').val();
+		userB64 = "Basic " +  base64.encode(userName+':'+password);
 		githubRepo = $('#repoName').attr('name');
 		commitMessage = $('#commitMessage').val();
 		
@@ -493,57 +500,59 @@ $(document).ready(function() {
 			$('#password').val("");
 			$('#fade, a.close').remove();  
 		});
+		if(userName != "" && password != ""){	
+			if ($.trim(newComment) == ''){
+	         		this.value = (this.defaultValue ? this.defaultValue : '');
+	         		alert('toto');
+	     	}
+	     	else{
+	     			
+	     			text = newComment.replace("'", "`");
+	     			pathFile = "/lib/standard/collection/array.nit";
+	     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+	     			line = $(this).prev().attr('title');
 
-		if ($.trim(this.value) == ''){
-         		this.value = (this.defaultValue ? this.defaultValue : '');
-     	}
-     	else{
-     			
-     			text = this.value.replace("'", "`");
-     			pathFile = "/lib/standard/collection/array.nit";
-     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-     			line = $(this).prev().attr('title');
+	     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
+					var count = lines.length - 1;
+					console.log(count); 
 
-     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-				var count = lines.length - 1;
-				console.log(count); 
+	     			/*if (jQuery.inArray(id, Arrays)){
+	     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
+	     				alert('toto');
+	     			}
+	     			else{
+	     				alert('test');	
+	     			}*/
+	     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
 
-     			/*if (jQuery.inArray(id, Arrays)){
-     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
-     				alert('toto');
-     			}
-     			else{
-     				alert('test');	
-     			}*/
-     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
+	     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
+	     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
+	     			alert(Arrays);
+	         		
 
-     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-     			alert(Arrays);
-         		
+	         		// Get file content
+	         		//alert(getFileContent(pathFile));
+	         		window.toto = window.getFileContent(pathFile);
+	         		//alert(getFileContent(pathFile));
+	         		text = toto.replace($(this).prev().text(), this.value);
+	         		getLastCommit();
 
-         		// Get file content
-         		//alert(getFileContent(pathFile));
-         		window.toto = window.getFileContent(pathFile);
-         		//alert(getFileContent(pathFile));
-         		text = toto.replace($(this).prev().text(), this.value);
-         		getLastCommit();
+	         		$(this).prev().html(this.value);*/
+	         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+	         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+					$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
 
-         		$(this).prev().html(this.value);*/
-         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
-				$.when(getFileContent(pathBlob, $(this).prev().text(), this.value)).done(function(){
+							//alert(text);
+							//text = this.value;
+							getLastCommit();
 
-						//alert(text);
-						//text = this.value;
-						getLastCommit();
-
-						
-				});
-				
-				//$(this).prev().html(this.value);
-         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
-     	}
+							
+					});
+					
+					//$(this).prev().html(this.value);
+	         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
+	     	}
+	     }
 	})
 
 
