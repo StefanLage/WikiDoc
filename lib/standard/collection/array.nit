@@ -338,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' eleents
+	# Create an array of `count' elem
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
