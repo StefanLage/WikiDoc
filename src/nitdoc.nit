@@ -20,7 +20,7 @@ package nitdoc
 import syntax
 private import utils
 import abstracttool
-import base64
+import sha 
 
 
 # Store knowledge and facilities to generate files
@@ -187,8 +187,9 @@ class DocContext
 		# generate the index
 		self.filename = "index.html"
 		clear
-		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
+		if github_repo == "" then github_repo = args[0].to_s
+		add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
+		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Overview | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -234,7 +235,7 @@ class DocContext
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">{mod.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
 			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")	
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
+			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{mod.name} module | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -253,7 +254,7 @@ class DocContext
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li>{c.global.intro.mmmodule.toplevel_owner.html_link(self)}</li><li class=\"current\">{c.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
 			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
+			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{c.name} class | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -269,7 +270,7 @@ class DocContext
 		action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">Full Index</li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 		clear
 		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
+		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Full Index | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -1203,19 +1204,18 @@ redef class MMLocalProperty
 		dctx.add("</article>")
 	end
 
-
 	fun generateShaFile(fileLocation: Location): String 
 	do
-		#print fileLocation.file.filename
 		var sha = ""
 		var file = new IFStream.open(fileLocation.file.filename)
 		var size = file.file_stat.size
-		var data = file.read_all.to_cstring
+		var data = file.read_all
 		
-		#sha = "blob 0{0.ascii.to_s}"
-		#sha = "blob " + size.to_s + "\\0" + data
+		sha = "blob {size}\0{data}\n"
 		file.close
-		#return sha.encode_base64
+		# PARSER SHA : 41a4e1fd998df23d2c1229b641a026f52d08a8a1
+		#var shafile = sha1(sha)
+		#return shafile
 		return "47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb"
 	end
 end

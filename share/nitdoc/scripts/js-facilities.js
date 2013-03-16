@@ -6,6 +6,7 @@ var shaBaseTree;
 var shaNewTree;
 var shaNewCommit;
 var shaBlob;
+var shaMaster;
 
 // User
 var userB64 = null;
@@ -13,7 +14,8 @@ var currentTree;
 var pathFile;
 var recurTree = "";
 var text = "";
-var toto = "";
+var repoExist;
+var branchName = "";
 var githubRepo = "";
 var userName = "";
 var password = "";
@@ -455,7 +457,13 @@ $(document).ready(function() {
 				$(this).prev().html(this.value);
          		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
      	}	*/
+     	// Get Repo name
 
+  		$('#repoCommit').val($('#repoName').attr('name'));
+  		$('#branchName').val('wikidoc');
+  		$('#commitMessage').val('New commit');  		
+
+     	//	alert($('#repoName').attr('name'));
      	$('#modal' ).show().prepend('<a href="" class="close"><img src="resources/icons/close.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
 			 //Effet fade-in du fond opaque
 		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
@@ -489,70 +497,82 @@ $(document).ready(function() {
 		password = $('#password').val();
 		userB64 = "Basic " +  base64.encode(userName+':'+password);
 		githubRepo = $('#repoName').attr('name');
-		commitMessage = $('#commitMessage').val();
 		
-		if(commitMessage == ""){
-			commitMessage = "New commit";
-		}
+		// Check if repo exist
+		isRepoExisting();
 
-		$('#fade , #modal').fadeOut(function() {
-			$('#login').val("");
-			$('#password').val("");
-			$('#fade, a.close').remove();  
-		});
-		if(userName != "" && password != ""){	
-			if ($.trim(newComment) == ''){
-	         		this.value = (this.defaultValue ? this.defaultValue : '');
-	         		alert('toto');
-	     	}
-	     	else{
-	     			
-	     			text = newComment.replace("'", "`");
-	     			pathFile = "/lib/standard/collection/array.nit";
-	     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-	     			line = $(this).prev().attr('title');
+		if(repoExist){
 
-	     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-					var count = lines.length - 1;
-					console.log(count); 
+			branchName = $('#branchName').val();
+			alert(branchName);
+			isBranchExisting();
+			commitMessage = $('#commitMessage').val();
+			
+			if(commitMessage == ""){
+				commitMessage = "New commit";
+			}
 
-	     			/*if (jQuery.inArray(id, Arrays)){
-	     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
-	     				alert('toto');
-	     			}
-	     			else{
-	     				alert('test');	
-	     			}*/
-	     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
+			if(userName != "" && password != ""){	
+				if ($.trim(newComment) == ''){
+		         		this.value = (this.defaultValue ? this.defaultValue : '');		         		
+		     	}
+		     	else{
+		     			
+		     			text = newComment.replace("'", "`");
+		     			pathFile = "/lib/standard/collection/array.nit";
+		     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+		     			line = $(this).prev().attr('title');
 
-	     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-	     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-	     			alert(Arrays);
-	         		
+		     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
+						var count = lines.length - 1;
+						console.log(count); 
 
-	         		// Get file content
-	         		//alert(getFileContent(pathFile));
-	         		window.toto = window.getFileContent(pathFile);
-	         		//alert(getFileContent(pathFile));
-	         		text = toto.replace($(this).prev().text(), this.value);
-	         		getLastCommit();
+		     			/*if (jQuery.inArray(id, Arrays)){
+		     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
+		     				alert('toto');
+		     			}
+		     			else{
+		     				alert('test');	
+		     			}*/
+		     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
 
-	         		$(this).prev().html(this.value);*/
-	         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-	         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
-					$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
+		     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
+		     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
+		     			alert(Arrays);
+		         		
 
-							//alert(text);
-							//text = this.value;
-							getLastCommit();
+		         		// Get file content
+		         		//alert(getFileContent(pathFile));
+		         		window.toto = window.getFileContent(pathFile);
+		         		//alert(getFileContent(pathFile));
+		         		text = toto.replace($(this).prev().text(), this.value);
+		         		getLastCommit();
 
-							
-					});
-					
-					//$(this).prev().html(this.value);
-	         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
-	     	}
-	     }
+		         		$(this).prev().html(this.value);*/
+		         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+		         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
+
+								//alert(text);
+								//text = this.value;
+								getLastCommit();
+
+								
+						});
+						
+						//$(this).prev().html(this.value);
+		         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
+		     	}
+		     }
+		   
+		 }
+
+		  $('#fade , #modal, #modalMsg').fadeOut(function() {
+				$('#login').val("");
+				$('#password').val("");
+				$('#fade, a.close').remove();  
+			});
+
 	})
 
 
@@ -643,9 +663,94 @@ function com(id, text, line, element)
 	
 }
 
+// Check if the repo already exist
+function isRepoExisting(){
+	$.ajax({
+        beforeSend: function (xhr) { 
+            if ($("#login").val() != ""){ 
+                xhr.setRequestHeader ("Authorization", userB64);
+            }
+        },
+        type: "GET", 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo, 
+        async:false,
+        dataType:'json',
 
+        success: function()
+        {       
+        	repoExist = true;	
+        },
+        error: function()
+        {
+        	alert("Repo not found !");
+        	repoExist = false;
+        }
+    });
+}
 
+// Check if the branch already exist
+function isBranchExisting(){
+	$.ajax({
+        beforeSend: function (xhr) { 
+            if ($("#login").val() != ""){ 
+                xhr.setRequestHeader ("Authorization", userB64);
+            }
+        },
+        type: "GET", 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName, 
+        async:false,
+        dataType:'json',
+        success: function(){
+        	return;
+        },
+        error: function()
+        {
+        	createBranch();
+        }
+    });
+}
 
+function createBranch(){
+
+	getMasterSha();
+
+	$.ajax({ 
+        beforeSend: function (xhr) { 
+            xhr.setRequestHeader ("Authorization", userB64);
+        },
+        type: "POST",
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs", 
+        data:'{ "ref" : "refs/heads/'+branchName+'",'+
+        		'"sha" : "'+shaMaster+'"'+
+            '}',
+        success: function(){
+        	return;
+        },
+        error: function(){
+        	alert('Impossible to create the new branch : ' + branchName);
+        }
+    });
+}
+
+function getMasterSha() 
+{
+    $.ajax({
+        beforeSend: function (xhr) { 
+            if ($("#login").val() != ""){ 
+                xhr.setRequestHeader ("Authorization", userB64);
+            }
+        },
+        type: "GET",
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/master",
+        dataType:"json",
+        async: false,
+
+        success: function(success)
+        {
+            shaMaster = success.object.sha;
+        }
+    });
+}
 
 function loadContent()
 {
@@ -666,17 +771,15 @@ function loadFile()
 
 
 function getLastCommit() 
-{
-    
-
+{   
     $.ajax({
         beforeSend: function (xhr) { 
-            //if ($("#login").val() != ""){ 
+            if ($("#login").val() != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
-            //}
+            }
         },
         type: "GET",
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/master",
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName,
         dataType:"json",
         async: false,
 
@@ -692,9 +795,9 @@ function getBaseTree()
 {
     $.ajax({ 
         beforeSend: function (xhr) { 
-            //if ($("#login").val() != ""){ 
+            if ($("#login").val() != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
-            //}
+            }
         },
         type: "GET",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits/" + shaLastCommit,
@@ -763,6 +866,7 @@ function setNewCommit()
     });
 }
 
+//Create a commit
 function commit()
 {
     $.ajax({ 
@@ -770,25 +874,26 @@ function commit()
             xhr.setRequestHeader ("Authorization", userB64);
         },
         type: "POST",
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/master", 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName, 
         data:'{ "sha" : "'+shaNewCommit+'", '+
                 '"force" :"true"'+
              '}',
 
         success: function(success)
-        {
-            //loadContent();
-            window.open(JSON.parse(success).object.url, '_blank');
-            window.focus();
+        {         
+            /*window.open(JSON.parse(success).object.url, '_blank');
+            window.focus();*/
+            alert('Commit created successfully');
+        },
+        error:function(error){
+        	alert('Error ' + JSON.parse(error).object.message);
         }
     });
 }
 
-
+// Create a blob
 function setBlob()
 {
-    //alert($(".text_label").text());
-    //alert(text);
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Authorization",  userB64);
@@ -798,16 +903,17 @@ function setBlob()
         data:'{ "content" : "'+text.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t')+'", '+
                 '"encoding" :"utf-8"'+
             '}',
-        
         success: function(success)
         {
             //alert(success); 
             shaBlob = JSON.parse(success).sha;
             setNewTree();
+        },
+        error:function(error){
+        	alert('Error : Problem parsing JSON');
         }
     });
 }
-
 
 // Display file content
 function getFileContent(urlFile, t, t2)
@@ -834,8 +940,6 @@ function getFileContent(urlFile, t, t2)
             //return text;
         }
     });
-
-    //alert('toto');
 }
 
 
@@ -844,9 +948,9 @@ function getBlobsTree(tree)
 {
     $.ajax({
         beforeSend: function (xhr) { 
-            //if ($("#login").val() != ""){ 
+            if ($("#login").val() != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
-            //}
+            }
         },
         type: "GET", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees/" + tree, 
@@ -875,11 +979,14 @@ function getBlobsTree(tree)
     });
 }
 
+
 // Add file in UL
 function addLi(blob, path)
 {
     $(".menu ul").append('<li id="'+blob.sha+'" name="'+path+'"><a><span class="'+path+'" name="'+path+'" id="'+blob.sha+'">'+blob.path+'</span></a></li>');
 }
+
+
 
 
 
