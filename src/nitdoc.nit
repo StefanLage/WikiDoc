@@ -638,6 +638,7 @@ redef class MMModule
 		if doc != null then
 			dctx.add("<div id=\"description\">\n")
 			dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>\n")
+			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 			dctx.add("</div>\n")
 		end
@@ -1113,6 +1114,7 @@ redef class MMLocalProperty
 			else
 				dctx.add("<pre class=\"text_label\" name=\"{html_name}\" >{global.intro.doc.to_html}</pre>")
 			end
+			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 		end
 
@@ -1159,6 +1161,7 @@ redef class MMLocalProperty
 						dctx.add("<pre id=\"{generateShaFile(l)}\" class=\"text_label\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
 						#end
 				end
+				dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 				dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 			end
 			dctx.add("<p>")

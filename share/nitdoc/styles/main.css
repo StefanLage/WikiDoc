@@ -463,6 +463,13 @@ textarea {
 	font-size: 1em;
 	width: 100%;
 }
+#commitBtn, #cancelBtn{
+	float: right;
+	margin-right: 10px;
+}
+#commitBtn:hover, #cancelBtn:hover{
+	cursor: hand; cursor: pointer;
+}
 
 #fade { /*--Masque opaque noir de fond--*/
 	display: none; /*--masqué par défaut--*/

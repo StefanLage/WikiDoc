@@ -388,17 +388,61 @@ $(document).ready(function() {
 
 	var Arrays = new Array();
 	$('textarea').hide();
+	$('a[id=commitBtn]').hide();
+	$('a[id=cancelBtn]').hide();
 
 	// Open edit file
-   	 $('.text_label').click(function(){
-        	$(this).hide();
-        	$(this).next().hide();
-        	$(this).next().text($(this).text());
-        	$(this).next().show();        
-    		$(this).next().height($(this).next().prop("scrollHeight"));
-        	$(this).next().select();
+   	$('.text_label').click(function(){
+        	$(this).hide(); 
+        	$(this).next().show();
+        	$(this).next().next().show();  
+        	$(this).next().next().next().show();        
+        	$(this).next().next().next().text($(this).text());
+    		$(this).next().next().next().height($(this).next().next().next().prop("scrollHeight"));
+        	$(this).next().next().next().select();
         	preElement = $(this);
-    	});
+    });
+
+   	 $('a[id=cancelBtn]').click(function(){
+   	 	// Hide himself
+   	 	$(this).hide();
+   	 	// Hide commitBtn
+   	 	$(this).next().hide();
+   	 	// Hide Textarea
+   	 	$(this).next().next().hide();
+   	 	// Show comment
+   	 	$(this).prev().show();
+   	 });
+
+   	 $('a[id=commitBtn]').click(function(){
+   	 	$('#repoCommit').val($('#repoName').attr('name'));
+  		$('#branchName').val('wikidoc');
+  		$('#commitMessage').val('New commit');  		
+
+     	//	alert($('#repoName').attr('name'));
+     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');
+			 //Effet fade-in du fond opaque
+		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
+		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
+		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+
+		idBlob = $(this).prev().prev().attr('id');
+		newComment = $(this).next().text();
+		
+
+     	$(this).hide();
+   	 	$(this).prev().hide();
+   	 	$(this).prev().prev().show();
+   	 	$(this).next().hide();
+   	 });
+
+   	 $('.btn_close').click(function(){
+   	 	$(this).hide();
+   	 	$(this).prev().hide();
+   	 	$(this).prev().prev().show();
+   	 	$(this).next().hide();
+   	 	$('textarea').hide();
+   	 });
 
 	// Close editing
 	$('textarea').blur(function() {
@@ -458,7 +502,7 @@ $(document).ready(function() {
          		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
      	}	*/
      	// Get Repo name
-
+/*
   		$('#repoCommit').val($('#repoName').attr('name'));
   		$('#branchName').val('wikidoc');
   		$('#commitMessage').val('New commit');  		
@@ -476,7 +520,8 @@ $(document).ready(function() {
 
      	$(this).hide();
      	$(this).prev().show();
-     	$(this).prev().prev().show();        
+     	$(this).prev().prev().show();   
+     	*/     
 	});
 
 
@@ -504,7 +549,7 @@ $(document).ready(function() {
 		if(repoExist){
 
 			branchName = $('#branchName').val();
-			alert(branchName);
+			
 			isBranchExisting();
 			commitMessage = $('#commitMessage').val();
 			
@@ -513,7 +558,7 @@ $(document).ready(function() {
 			}
 
 			if(userName != "" && password != ""){	
-				if ($.trim(newComment) == ''){
+				if ($.trim(newComment) == ''){	
 		         		this.value = (this.defaultValue ? this.defaultValue : '');		         		
 		     	}
 		     	else{
@@ -571,6 +616,7 @@ $(document).ready(function() {
 				$('#login').val("");
 				$('#password').val("");
 				$('#fade, a.close').remove();  
+				$('textarea').hide();
 			});
 
 	})
