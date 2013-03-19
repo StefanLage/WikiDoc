@@ -17,12 +17,14 @@ var text = "";
 var repoExist;
 var branchName = "";
 var githubRepo = "";
+var branchExist = false;
 var userName = "";
 var password = "";
 var idBlob;
 var commitMessage = "";
 var preElement;
 var newComment;
+var editComment = 0;
 
 
 /*
@@ -42,6 +44,11 @@ var currentTable = null;
 //Hightlighted index in search result preview table
 var currentIndex = -1;
 
+window.onbeforeunload = function() {
+	if(editComment > 0){
+    	return 'Are you sure you want to navigate away from this page?';
+	}
+};
 
 /*
 * Add folding and filtering facilities to class description page.
@@ -391,27 +398,152 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 
+
+	/*$('.section-header').click(function(){		
+		$('#txtQuestion').text("Are you sure you want to create the branch "+ branchName +" ?");
+		$('#modalQuestion').show();
+		$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
+			 //Effet fade-in du fond opaque
+		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
+		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
+		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+
+	});*/
+
+	// Cancel creating branch
+	$('#btnCancelBranch').click(function(){
+		editComment -= 1;
+   	 	$('#modalQuestion').hide();
+   	 	$('#fade , #modal').fadeOut(function() {
+			$('#fade, a.close').remove();  
+		});
+   	 	$('textarea').hide();
+   	 	$('textarea').prev().show();
+		stop();
+   	});
+
+
+	// Create new branch and continu
+   	$('#btnCreateBranch').click(function(){
+   	 	$('#modalQuestion').hide();
+
+   	 	if(editComment > 0 && $('#btnCreateBranch').text() != 'Ok'){
+	   	 	// Create the branch
+	   	 	createBranch();
+
+   	 		commitMessage = $('#commitMessage').val();
+			
+			if(commitMessage == ""){
+				commitMessage = "New commit";
+			}
+
+			if(userName != "" && password != ""){	
+				if ($.trim(newComment) == ''){	
+		         		this.value = (this.defaultValue ? this.defaultValue : '');		         		
+		     	}
+		     	else{
+		     			
+		     			text = newComment.replace("'", "`");
+		     			pathFile = "/lib/standard/collection/array.nit";
+		     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+		     			line = $(this).prev().attr('title');
+
+		     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
+						var count = lines.length - 1;
+						console.log(count); 
+
+		     			/*if (jQuery.inArray(id, Arrays)){
+		     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
+		     				alert('toto');
+		     			}
+		     			else{
+		     				alert('test');	
+		     			}*/
+		     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
+
+		     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
+		     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
+		     			alert(Arrays);
+		         		
+
+		         		// Get file content
+		         		//alert(getFileContent(pathFile));
+		         		window.toto = window.getFileContent(pathFile);
+		         		//alert(getFileContent(pathFile));
+		         		text = toto.replace($(this).prev().text(), this.value);
+		         		getLastCommit();
+
+		         		$(this).prev().html(this.value);*/
+		         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
+		         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
+
+								//alert(text);
+								//text = this.value;
+								getLastCommit();
+
+								editComment = false;
+						});
+						
+						//$(this).prev().html(this.value);
+		         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
+		     	}
+		    }
+		
+		}
+		else
+		{
+			$('#fade , #modalQuestion, #modal').fadeOut(function() {
+				$('#fade, a.close').remove();  
+			});
+		}
+		$('textarea').hide();
+		$('textarea').prev().show();
+   	});
+
+
+
+	/*$('a[id=btnCancelBranch]').click(function(){
+		$(this).hide();
+   	 	$('#fade , #modal').fadeOut(function() {
+			$('#fade, a.close').remove();  
+		});
+   	});*/
+
+
+
 	// Open edit file
-   	$('.text_label').click(function(){
-        	$(this).hide(); 
+   	$('pre[class=text_label]').click(function(){
+   			editComment += 1;
+   			// hide comment
+        	$(this).hide();
+        	// Show edit box 
         	$(this).next().show();
+        	// Show cancel button
         	$(this).next().next().show();  
+        	// Show commit button
         	$(this).next().next().next().show();        
-        	$(this).next().next().next().text($(this).text());
-    		$(this).next().next().next().height($(this).next().next().next().prop("scrollHeight"));
-        	$(this).next().next().next().select();
-        	preElement = $(this);
+        	// Add text in edit box
+        	$(this).next().val($(this).text());
+        	// Resize edit box 
+    		$(this).next().height($(this).next().prop("scrollHeight"));
+    		// Select it
+        	$(this).next().select();
+        	preElement = $(this);     
     });
 
    	 $('a[id=cancelBtn]').click(function(){
+   	 	if(editComment > 0){
+			editComment -= 1;
+		}
    	 	// Hide himself
    	 	$(this).hide();
    	 	// Hide commitBtn
    	 	$(this).next().hide();
    	 	// Hide Textarea
-   	 	$(this).next().next().hide();
+   	 	$(this).prev().hide();
    	 	// Show comment
-   	 	$(this).prev().show();
+   	 	$(this).prev().prev().show();
    	 });
 
    	 $('a[id=commitBtn]').click(function(){
@@ -426,8 +558,8 @@ $(document).ready(function() {
 		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
 		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
-		idBlob = $(this).prev().prev().attr('id');
-		newComment = $(this).next().text();
+		idBlob = $(this).prev().prev().prev().attr('id');
+		newComment = $(this).prev().prev().val();
 		
 
      	$(this).hide();
@@ -442,7 +574,13 @@ $(document).ready(function() {
    	 	$(this).prev().prev().show();
    	 	$(this).next().hide();
    	 	$('textarea').hide();
+
+   	 	if(editComment > 0){
+			editComment -= 1;
+		}
    	 });
+
+
 
 	// Close editing
 	$('textarea').blur(function() {
@@ -527,9 +665,15 @@ $(document).ready(function() {
 
 	//Close Popups and Fade Layer
 	$('body').on('click', 'a.close, #fade', function() { //Au clic sur le body...
+		if(editComment > 0){
+			editComment -= 1;
+		}
 		$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
 		});
+		$('textarea').hide();
+		$('textarea').prev().show();
+		$('#modalQuestion').hide();
 	});
 
 	$('#loginAction').click(function(){
@@ -541,83 +685,59 @@ $(document).ready(function() {
 		userName = $('#login').val();
 		password = $('#password').val();
 		userB64 = "Basic " +  base64.encode(userName+':'+password);
-		githubRepo = $('#repoName').attr('name');
+		githubRepo = $('#repoCommit').val();
 		
 		// Check if repo exist
 		isRepoExisting();
 
-		if(repoExist){
+ 		
+
+		if(repoExist == true){
 
 			branchName = $('#branchName').val();
-			
 			isBranchExisting();
-			commitMessage = $('#commitMessage').val();
-			
-			if(commitMessage == ""){
-				commitMessage = "New commit";
-			}
 
-			if(userName != "" && password != ""){	
-				if ($.trim(newComment) == ''){	
-		         		this.value = (this.defaultValue ? this.defaultValue : '');		         		
-		     	}
-		     	else{
-		     			
-		     			text = newComment.replace("'", "`");
-		     			pathFile = "/lib/standard/collection/array.nit";
-		     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-		     			line = $(this).prev().attr('title');
+			if(branchExist == true){
+				
+				editComment -= 1;
+				commitMessage = $('#commitMessage').val();
+				
+				if(commitMessage == ""){
+					commitMessage = "New commit";
+				}
 
-		     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-						var count = lines.length - 1;
-						console.log(count); 
+				if(userName != "" && password != ""){	
+					if ($.trim(newComment) == ''){	
+			         		this.value = (this.defaultValue ? this.defaultValue : '');		    
+			         		alert(newComment);     		
+			     	}
+			     	else{
 
-		     			/*if (jQuery.inArray(id, Arrays)){
-		     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
-		     				alert('toto');
-		     			}
-		     			else{
-		     				alert('test');	
-		     			}*/
-		     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
-
-		     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-		     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-		     			alert(Arrays);
-		         		
-
-		         		// Get file content
-		         		//alert(getFileContent(pathFile));
-		         		window.toto = window.getFileContent(pathFile);
-		         		//alert(getFileContent(pathFile));
-		         		text = toto.replace($(this).prev().text(), this.value);
-		         		getLastCommit();
-
-		         		$(this).prev().html(this.value);*/
-		         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-		         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+			     		text = newComment.replace("'", "`");
+			     		pathFile = "/lib/standard/collection/array.nit";
+			         	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
 						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
-
-								//alert(text);
-								//text = this.value;
-								getLastCommit();
-
-								
+									
+							getLastCommit();
+									
 						});
-						
-						//$(this).prev().html(this.value);
-		         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
-		     	}
-		     }
+			     	}
+			     }
+			     $('#fade , #modal, #modalQuestion').fadeOut(function() {
+					$('#login').val("");
+					$('#password').val("");
+					$('#fade, a.close').remove();  
+					$('textarea').hide();
+					$('textarea').prev().show();
+				});
+			}
 		   
 		 }
+		 else{
+		 	editComment -= 1;
+		 }
 
-		  $('#fade , #modal, #modalMsg').fadeOut(function() {
-				$('#login').val("");
-				$('#password').val("");
-				$('#fade, a.close').remove();  
-				$('textarea').hide();
-			});
+		 
 
 	})
 
@@ -673,40 +793,17 @@ function highlightBlock(a) {
 
 
 
+function displayMessage(msg, widthDiv){
 
-
-
-
-function com(id, text, line, element)
-{
-	//text = this.value.replace("'", "`");
-	//pathFile = $(this).prev().attr('name');
-	
-	//line = $(this).prev().attr('title');
-
-	/*var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-	var count = lines.length - 1;
-	console.log(count); */
-
-	//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-	//Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-	//alert(Arrays);
-
-
-	// Get file content
-	//alert(getFileContent(pathFile));
-	//window.toto = window.getFileContent(pathFile, t, t2);
-
-	//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + $.sha1("blob"+ $(this).attr +"\0" + id + "\n");
-	$.when(getFileContent(pathFile)).done(function(){
-
-			//alert(text);
-			text.
-			getLastCommit();
-
-			element.html(this.value);
-	});
-	
+	$('#modal').hide();
+	$('#btnCreateBranch').css('margin-left',widthDiv + '%');
+	$('#txtQuestion').text(msg);
+	$('#btnCreateBranch').text("Ok");
+	$('#btnCancelBranch').hide();
+	$('#modalQuestion').show();
+	$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
+	$('body').append('<div id="fade"></div>');
+	$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 }
 
 // Check if the repo already exist
@@ -727,8 +824,8 @@ function isRepoExisting(){
         	repoExist = true;	
         },
         error: function()
-        {
-        	alert("Repo not found !");
+        {        	
+        	displayMessage('Repo not found !', 35);
         	repoExist = false;
         }
     });
@@ -747,11 +844,20 @@ function isBranchExisting(){
         async:false,
         dataType:'json',
         success: function(){
-        	return;
+        	branchExist = true;
         },
         error: function()
         {
-        	createBranch();
+        	branchExist = false;
+        	editComment -= 1;
+        	$('#modal').hide();
+        	$('#txtQuestion').text("Are you sure you want to create that branch ?");
+        	$('#btnCancelBranch').show();
+        	$('#btnCreateBranch').text("Yes");
+			$('#modalQuestion').show();
+			$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
+			$('body').append('<div id="fade"></div>');
+			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
         }
     });
 }
@@ -773,7 +879,8 @@ function createBranch(){
         	return;
         },
         error: function(){
-        	alert('Impossible to create the new branch : ' + branchName);
+        	editComment -= 1;        	
+        	displayMessage('Impossible to create the new branch : ' + branchName, 40);
         }
     });
 }
@@ -927,12 +1034,11 @@ function commit()
 
         success: function(success)
         {         
-            /*window.open(JSON.parse(success).object.url, '_blank');
-            window.focus();*/
-            alert('Commit created successfully');
+            displayMessage('Commit created successfully', 40);
         },
         error:function(error){
-        	alert('Error ' + JSON.parse(error).object.message);
+        	//alert('Error ' + JSON.parse(error).object.message);
+        	displayMessage('Error ' + JSON.parse(error).object.message, 40);
         }
     });
 }
@@ -956,7 +1062,7 @@ function setBlob()
             setNewTree();
         },
         error:function(error){
-        	alert('Error : Problem parsing JSON');
+        	displayMessage('Error : Problem parsing JSON', 40);
         }
     });
 }
