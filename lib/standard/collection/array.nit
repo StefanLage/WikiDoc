@@ -314,7 +314,7 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty	init
+	# Create an empty arra	init
 	do
 		_capacity = 0
 		_length = 0
