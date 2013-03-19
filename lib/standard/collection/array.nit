@@ -314,7 +314,8 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty 	init
+	# Create an empty array.
+	init
 	do
 		_capacity = 0
 		_length = 0
@@ -328,7 +329,7 @@ class Array[E]
 		_length = objects.length
 	end
 
-	# Create an empty array with a given capacity.
+	# Create an empty array with a given
 	init with_capacity(cap: Int)
 	do
 		assert positive: cap >= 0
