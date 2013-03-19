@@ -329,7 +329,7 @@ class Array[E]
 		_length = objects.length
 	end
 
-	# Create an empty array with a given
+	# Create an empty array with a given capacity.
 	init with_capacity(cap: Int)
 	do
 		assert positive: cap >= 0
