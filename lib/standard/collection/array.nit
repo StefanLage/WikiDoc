@@ -314,8 +314,7 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty array.
-	init
+	# Create an empty	init
 	do
 		_capacity = 0
 		_length = 0
@@ -338,7 +337,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of elements
+	# Create an array of `count' elements
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
