@@ -1213,13 +1213,10 @@ redef class MMLocalProperty
 		var file = new IFStream.open(fileLocation.file.filename)
 		var size = file.file_stat.size
 		var data = file.read_all
-		
-		sha = "blob {size}\0{data}\n"
-		file.close
-		# PARSER SHA : 41a4e1fd998df23d2c1229b641a026f52d08a8a1
-		#var shafile = sha1(sha)
-		#return shafile
-		return "47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb"
+		file.close	
+		sha = "blob {size}\0{data}"
+		var shafile = sha1(sha.length, sha.to_cstring)
+		return shafile
 	end
 end
 redef class MMMethod

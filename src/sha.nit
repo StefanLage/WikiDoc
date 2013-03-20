@@ -18,16 +18,15 @@ in "C header" `{
 	#endif
 `}
 
-fun sha1(str: String):String import String::from_cstring`{
+fun sha1(strsize: Int, str: NativeString):String import String::with_native`{
 
-	char *c_str=NULL; c_str=String_to_cstring(str);
-	int i = 0;
+	char* c_str=str;
 	unsigned char result[SHA_DIGEST_LENGTH];
-	char *buf = malloc(SHA_DIGEST_LENGTH*2+1 * sizeof(char));
+	char *buf = malloc(SHA_DIGEST_LENGTH*2+1);
 
-	SHA1(c_str, strlen(c_str), result);
-	for(i = 0; i < SHA_DIGEST_LENGTH; i++)
-		sprintf((char*)&(buf[i*2]), "%02x", (unsigned char)result[i]);
+	SHA1(c_str, strsize, result);
+	for(int i = 0; i < SHA_DIGEST_LENGTH; i++)
+		sprintf(buf + i*2, "%02x", (unsigned int)result[i]);
 	
 	return  new_String_from_cstring(buf);
 `}
