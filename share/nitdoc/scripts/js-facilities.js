@@ -427,7 +427,10 @@ $(document).ready(function() {
    	$('#btnCreateBranch').click(function(){
    	 	$('#modalQuestion').hide();
 
-   	 	if(editComment > 0 && $('#btnCreateBranch').text() != 'Ok'){
+   	 	//alert($('#btnCreateBranch').text());
+
+
+   	 	if($('#btnCreateBranch').text() != 'Ok'){
 	   	 	// Create the branch
 	   	 	createBranch();
 
