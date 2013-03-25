@@ -470,7 +470,11 @@ textarea {
 #commitBtn:hover, #cancelBtn:hover{
 	cursor: hand; cursor: pointer;
 }
-
+#waitCommit { /*--Masque opaque noir de fond--*/
+	display: none;
+	top: 40%; left: 40%;
+	z-index: 99999;
+}
 #fade { /*--Masque opaque noir de fond--*/
 	display: none; /*--masqué par défaut--*/
 	background: #000;

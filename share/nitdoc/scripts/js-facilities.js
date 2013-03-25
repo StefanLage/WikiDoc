@@ -26,6 +26,26 @@ var preElement;
 var newComment;
 var editComment = 0;
 
+var opts = {
+	  lines: 11, // The number of lines to draw
+	  length: 7, // The length of each line
+	  width: 4, // The line thickness
+	  radius: 10, // The radius of the inner circle
+	  corners: 1, // Corner roundness (0..1)
+	  rotate: 0, // The rotation offset
+	  color: '#FFF', // #rgb or #rrggbb
+	  speed: 1, // Rounds per second
+	  trail: 60, // Afterglow percentage
+	  shadow: false, // Whether to render a shadow
+	  hwaccel: false, // Whether to use hardware acceleration
+	  className: 'spinner', // The CSS class to assign to the spinner
+	  zIndex: 99999, // The z-index (defaults to 2000000000)
+	  top: '300', // Top position relative to parent in px
+	  left: 'auto' // Left position relative to parent in px
+	};
+var targetSpinner = document.getElementById('waitCommit');
+var	spinner = new Spinner(opts).spin(targetSpinner);
+
 
 /*
 * JQuery Case Insensitive :icontains selector
@@ -49,6 +69,7 @@ window.onbeforeunload = function() {
     	return 'Are you sure you want to navigate away from this page?';
 	}
 };
+
 
 /*
 * Add folding and filtering facilities to class description page.
@@ -447,7 +468,8 @@ $(document).ready(function() {
 		     	else{
 		     			
 		     			text = newComment.replace("'", "`");
-		     			pathFile = "/lib/standard/collection/array.nit";
+		     			//pathFile = "/lib/standard/collection/array.nit";
+		     			//pathFile = "/lib/standard/stream.nit";
 		     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
 		     			line = $(this).prev().attr('title');
 
@@ -515,6 +537,7 @@ $(document).ready(function() {
 
 
 
+
 	// Open edit file
    	$('pre[class=text_label]').click(function(){
    			editComment += 1;
@@ -554,6 +577,8 @@ $(document).ready(function() {
   		$('#branchName').val('wikidoc');
   		$('#commitMessage').val('New commit');  		
 
+  		pathFile = $(this).prev().prev().prev().attr('tag');
+
      	//	alert($('#repoName').attr('name'));
      	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');
 			 //Effet fade-in du fond opaque
@@ -582,88 +607,6 @@ $(document).ready(function() {
 			editComment -= 1;
 		}
    	 });
-
-
-
-	// Close editing
-	$('textarea').blur(function() {
-		/*var id;
-		var text;
-		var url;
-		var line;
-
-    	if ($.trim(this.value) == ''){
-         		this.value = (this.defaultValue ? this.defaultValue : '');
-     	}
-     	else{
-     			id = $(this).prev().attr('id');
-     			text = this.value.replace("'", "`");
-     			pathFile = "/lib/standard/collection/array.nit";
-     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-     			line = $(this).prev().attr('title');
-
-     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-				var count = lines.length - 1;
-				console.log(count); 
-
-     			/*if (jQuery.inArray(id, Arrays)){
-     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
-     				alert('toto');
-     			}
-     			else{
-     				alert('test');	
-     			}*/
-     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
-
-     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-     			alert(Arrays);
-         		
-
-         		// Get file content
-         		//alert(getFileContent(pathFile));
-         		window.toto = window.getFileContent(pathFile);
-         		//alert(getFileContent(pathFile));
-         		text = toto.replace($(this).prev().text(), this.value);
-         		getLastCommit();
-
-         		$(this).prev().html(this.value);*/
-         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-         		/*var pathBlob = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-				$.when(getFileContent(pathBlob, $(this).prev().text(), this.value)).done(function(){
-
-						//alert(text);
-						//text = this.value;
-						getLastCommit();
-
-						
-				});
-				
-				$(this).prev().html(this.value);
-         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
-     	}	*/
-     	// Get Repo name
-/*
-  		$('#repoCommit').val($('#repoName').attr('name'));
-  		$('#branchName').val('wikidoc');
-  		$('#commitMessage').val('New commit');  		
-
-     	//	alert($('#repoName').attr('name'));
-     	$('#modal' ).show().prepend('<a href="" class="close"><img src="resources/icons/close.png" class="btn_close" title="Fermer" alt="Fermer" /></a>');
-			 //Effet fade-in du fond opaque
-		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
-		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
-		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-
-		idBlob = $(this).prev().attr('id');
-		newComment = this.value;
-		
-
-     	$(this).hide();
-     	$(this).prev().show();
-     	$(this).prev().prev().show();   
-     	*/     
-	});
 
 
 	//Close Popups and Fade Layer
@@ -711,13 +654,12 @@ $(document).ready(function() {
 
 				if(userName != "" && password != ""){	
 					if ($.trim(newComment) == ''){	
-			         		this.value = (this.defaultValue ? this.defaultValue : '');		    
-			         		alert(newComment);     		
+			         		this.value = (this.defaultValue ? this.defaultValue : '');		    			         	 
 			     	}
 			     	else{
 
 			     		text = newComment.replace("'", "`");
-			     		pathFile = "/lib/standard/collection/array.nit";
+
 			         	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
 						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
 									
@@ -726,13 +668,18 @@ $(document).ready(function() {
 						});
 			     	}
 			     }
-			     $('#fade , #modal, #modalQuestion').fadeOut(function() {
+			     $('#modal, #modalQuestion').fadeOut(function() {
 					$('#login').val("");
-					$('#password').val("");
-					$('#fade, a.close').remove();  
+					$('#password').val(""); 
 					$('textarea').hide();
 					$('textarea').prev().show();
+					displaySpinner();
 				});
+					/*$('#login').val("");
+					$('#password').val(""); 
+					$('textarea').hide();
+					$('textarea').prev().show();
+			     displaySpinner();*/
 			}
 		   
 		 }
@@ -797,7 +744,8 @@ function highlightBlock(a) {
 
 
 function displayMessage(msg, widthDiv){
-
+	spinner.stop();
+	//$('#waitCommit').hide();
 	$('#modal').hide();
 	$('#btnCreateBranch').css('margin-left',widthDiv + '%');
 	$('#txtQuestion').text(msg);
@@ -807,6 +755,36 @@ function displayMessage(msg, widthDiv){
 	$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
 	$('body').append('<div id="fade"></div>');
 	$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+}
+
+
+
+function displaySpinner(){
+	/*var opts = {
+	  lines: 11, // The number of lines to draw
+	  length: 7, // The length of each line
+	  width: 4, // The line thickness
+	  radius: 10, // The radius of the inner circle
+	  corners: 1, // Corner roundness (0..1)
+	  rotate: 0, // The rotation offset
+	  color: '#FFF', // #rgb or #rrggbb
+	  speed: 1, // Rounds per second
+	  trail: 60, // Afterglow percentage
+	  shadow: false, // Whether to render a shadow
+	  hwaccel: false, // Whether to use hardware acceleration
+	  className: 'spinner', // The CSS class to assign to the spinner
+	  zIndex: 99999, // The z-index (defaults to 2000000000)
+	  top: '300', // Top position relative to parent in px
+	  left: 'auto' // Left position relative to parent in px
+	};
+	var target = document.getElementById('waitCommit');*/
+	spinner.spin(targetSpinner);
+	$("#waitCommit").show();
+	//var spinner2 = new Spinner().spin();
+	//document.getElementById('spinner').appendChild(spinner2.el);
+	//$('#fade').append(spinner2);
+	//$('#spinner').css('z-index:99999;');
+
 }
 
 // Check if the repo already exist
@@ -964,6 +942,7 @@ function getBaseTree()
             shaBaseTree = success.tree.sha;
             if (state){
                 setBlob();
+                //sendPatch();
             }
             else
             {
@@ -976,8 +955,6 @@ function getBaseTree()
 
 function setNewTree()
 {
-	//pathFile = "lib/array.nit";
-
     $.ajax({ 
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Authorization", userB64);
@@ -986,7 +963,7 @@ function setNewTree()
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees", 
         data:'{ "base_tree" : "'+shaBaseTree+'", '+
                 '"tree":[{ '+
-                    '"path":"'+ pathFile.substring(1,pathFile.length) +'",'+
+                    '"path":"'+ pathFile +'",'+
                     '"mode":"100644",'+
                     '"type":"blob",'+
                     '"sha": "'+ shaBlob +'"'+
@@ -1049,13 +1026,16 @@ function commit()
 // Create a blob
 function setBlob()
 {
+
+	
+
     $.ajax({
         beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization",  userB64);
+            xhr.setRequestHeader ("Authorization",  userB64);	
         },
         type: "POST", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
-        data:'{ "content" : "'+text.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t')+'", '+
+        data:'{ "content" : "'+text.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t').replace(/\"/g,'\\"')+'", '+
                 '"encoding" :"utf-8"'+
             '}',
         success: function(success)
@@ -1064,8 +1044,14 @@ function setBlob()
             shaBlob = JSON.parse(success).sha;
             setNewTree();
         },
-        error:function(error){
-        	displayMessage('Error : Problem parsing JSON', 40);
+        error:function(jqXHR, textStatus, errorThrown){
+        	//displayMessage('Error : Problem parsing JSON', 40);
+
+        	alert(textStatus);
+		    // you can add different alert here to check
+		    alert(errorThrown);
+		    alert(jqXHR.responseText);
+
         }
     });
 }
@@ -1076,9 +1062,9 @@ function getFileContent(urlFile, t, t2)
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Accept",  "application/vnd.github-blob.raw");
-            //if ($("#login").val() != ""){ 
+            if ($("#login").val() != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
-            //}
+            }
         },
         type: "GET", 
         url: urlFile, 
@@ -1141,6 +1127,34 @@ function addLi(blob, path)
     $(".menu ul").append('<li id="'+blob.sha+'" name="'+path+'"><a><span class="'+path+'" name="'+path+'" id="'+blob.sha+'">'+blob.path+'</span></a></li>');
 }
 
+
+/*function sendPatch(){
+	var t = '@@ -1,1 1,1 @@\\n';
+	t += "-Create an array of `count'\\n";
+	t += "+Create an array of `count' elements";
+
+	$.ajax({
+        beforeSend: function (xhr) { 
+            xhr.setRequestHeader ("Authorization",  userB64);
+            xhr.setRequestHeader ("Accept", "application/vnd.github.patch");
+        },
+        type: "POST", 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
+        data:'{ "content" : "'+t+'", '+
+                '"encoding" :"utf-8"'+
+            '}',
+        success: function(success)
+        {
+            //alert(success); 
+            shaBlob = JSON.parse(success).sha;
+            setNewTree();
+        },
+        error:function(error){
+        	displayMessage('Error : Problem parsing JSON', 40);
+        }
+    });
+
+}*/
 
 
 
@@ -1252,3 +1266,20 @@ base64.encode = function(s) {
     }
     return x.join('');
 }
+
+$.fn.spin = function(opts) {
+  this.each(function() {
+    var $this = $(this),
+        data = $this.data();
+
+    if (data.spinner) {
+      data.spinner.stop();
+      delete data.spinner;
+    }
+    if (opts !== false) {
+      data.spinner = new Spinner($.extend({color: $this.css('color')}, opts)).spin(this);
+    }
+  });
+  return this;
+};
+
