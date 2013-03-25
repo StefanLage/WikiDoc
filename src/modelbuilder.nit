@@ -52,7 +52,6 @@ end
 # The others function can be used for specific tasks
 class ModelBuilder
 	# The model where new modules, classes and properties are added
-tttt
 	var model: Model
 
 	# The toolcontext used to control the interaction with the user (getting options and displaying messages)
