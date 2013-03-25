@@ -31,7 +31,7 @@ class Parser
 	# Position in the stack
 	var _stack_pos: Int
 
-	# Create a new parser based on a given lexer
+	# Create a new parser based on a given lexeraz
 	init(lexer: Lexer)
 	do
 		_lexer = lexer
