@@ -31,7 +31,8 @@ class Parser
 	# Position in the stack
 	var _stack_pos: Int
 
-	# Create a new parser based on a given lexer.	init(lexer: Lexer)
+	# Create a new parser based on a given lexer.
+	init(lexer: Lexer)
 	do
 		_lexer = lexer
 		_stack = new Array[State]
