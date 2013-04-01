@@ -314,7 +314,8 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty array.Test	init
+	# Create an empty array.
+	init
 	do
 		_capacity = 0
 		_length = 0
@@ -351,7 +352,7 @@ class Array[E]
 		end
 	end
 
-	# Create a array filled with a given native array.
+	# Create a array filled with a given native array.toto
 	init with_native(nat: NativeArray[E], size: Int)
 	do
 		assert positive: size >= 0
