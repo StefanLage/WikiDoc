@@ -315,6 +315,7 @@ class Array[E]
 	end
 
 	# Create an empty array.
+	# Nouveau test
 	init
 	do
 		_capacity = 0
@@ -352,7 +353,7 @@ class Array[E]
 		end
 	end
 
-	# Create a array filled with a given native array.toto
+	# Create a array filled with a given native array.
 	init with_native(nat: NativeArray[E], size: Int)
 	do
 		assert positive: size >= 0
@@ -721,3 +722,4 @@ universal NativeArray[E]
 	#fun =(o: NativeArray[E]): Bool is intern
 	#fun !=(o: NativeArray[E]): Bool is intern
 end
+
