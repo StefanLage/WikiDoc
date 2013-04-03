@@ -28,6 +28,8 @@ class DocContext
 	super AbstractCompiler
 	# Destination directory
 	readable writable var _dir: String = "doc"
+
+	# GitHub Repo name
 	var github_repo: String = ""
 
 	# Content of a generated file
@@ -1109,11 +1111,11 @@ redef class MMLocalProperty
 			end
 		end
 		if introdoc then
-			if is_redef then
-				dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{global.intro.doc.to_html}</pre>")
-			else
+			#if is_redef then
+				#	dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{global.intro.doc.to_html}</pre>")
+				#else
 				dctx.add("<pre class=\"text_label\" name=\"{html_name}\" >{global.intro.doc.to_html}</pre>")
-			end
+				#end
 			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 		end
@@ -1126,7 +1128,6 @@ redef class MMLocalProperty
 			if not tlmods.has(bm) then tlmods.add(bm)
 		end
 	
-		var idModule = 1
 		for tm in tlmods do
 			# Document the top level property for the current top level module
 			var tlp
@@ -1155,11 +1156,7 @@ redef class MMLocalProperty
 				#dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>")
 				if n != null then
 					var l = n.location
-					#if is_redef then
-						#	dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{doc.to_html}</pre>")
-						#else
-						dctx.add("<pre id=\"{generateShaFile(l)}\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
-						#end
+					dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
 				end
 				dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 				dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
@@ -1464,8 +1461,10 @@ redef class MMLocalClass
 
 		dctx.add("<section class=\"description\">\n")
 		var doc = doc
+		#var l = global.intro.mmmodule.location
 		if doc != null then
-			dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>\n")
+			var l = doc.location
+			dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"2\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\">{doc.to_html}</pre>\n")
 			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
 			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 		end

@@ -25,6 +25,9 @@ var commitMessage = "";
 var preElement;
 var newComment;
 var editComment = 0;
+var commentLineStart;
+var commentLineEnd;
+var commentType;
 
 var opts = {
 	  lines: 11, // The number of lines to draw
@@ -419,18 +422,6 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 
-
-	/*$('.section-header').click(function(){		
-		$('#txtQuestion').text("Are you sure you want to create the branch "+ branchName +" ?");
-		$('#modalQuestion').show();
-		$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
-			 //Effet fade-in du fond opaque
-		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
-		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
-		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-
-	});*/
-
 	// Cancel creating branch
 	$('#btnCancelBranch').click(function(){
 		editComment -= 1;
@@ -443,13 +434,9 @@ $(document).ready(function() {
 		stop();
    	});
 
-
 	// Create new branch and continu
    	$('#btnCreateBranch').click(function(){
    	 	$('#modalQuestion').hide();
-
-   	 	//alert($('#btnCreateBranch').text());
-
 
    	 	if($('#btnCreateBranch').text() != 'Ok'){
 	   	 	// Create the branch
@@ -463,58 +450,12 @@ $(document).ready(function() {
 
 			if(userName != "" && password != ""){	
 				if ($.trim(newComment) == ''){	
-		         		this.value = (this.defaultValue ? this.defaultValue : '');		         		
+		         	this.value = (this.defaultValue ? this.defaultValue : '');		         		
 		     	}
-		     	else{
-		     			
-		     			text = newComment.replace("'", "`");
-		     			//pathFile = "/lib/standard/collection/array.nit";
-		     			//pathFile = "/lib/standard/stream.nit";
-		     			//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-		     			line = $(this).prev().attr('title');
-
-		     			var lines = $(this).prev().text().split(/\r|\r\n|\n/);
-						var count = lines.length - 1;
-						console.log(count); 
-
-		     			/*if (jQuery.inArray(id, Arrays)){
-		     				//Arrays.push("'id': '"+id+"', 'info': [{'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}]}");
-		     				alert('toto');
-		     			}
-		     			else{
-		     				alert('test');	
-		     			}*/
-		     			/*var t = "{'id': '"+id+"', 'text': '"+text+"', 'link': "+url+", 'line': "+line+"}";
-
-		     			//Arrays.push(JSON.stringify(eval("(" + t + ")")));
-		     			Arrays.push("'id': '"+id+"', 'text': '"+text+"', 'link': '"+url+"', 'line': '"+line+"'}");
-		     			alert(Arrays);
-		         		
-
-		         		// Get file content
-		         		//alert(getFileContent(pathFile));
-		         		window.toto = window.getFileContent(pathFile);
-		         		//alert(getFileContent(pathFile));
-		         		text = toto.replace($(this).prev().text(), this.value);
-		         		getLastCommit();
-
-		         		$(this).prev().html(this.value);*/
-		         		//pathFile = 'https://api.github.com/repos/StefanLage/TestWikiDoc/git/blobs/' + id;
-		         		var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
-						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
-
-								//alert(text);
-								//text = this.value;
-								getLastCommit();
-
-								editComment = false;
-						});
-						
-						//$(this).prev().html(this.value);
-		         		//om($(this).prev().attr('id'), this.value, $(this).prev().attr('title'), $(this).prev());
+		     	else{		         	 	
+					startCommitProcess();
 		     	}
 		    }
-		
 		}
 		else
 		{
@@ -526,20 +467,20 @@ $(document).ready(function() {
 		$('textarea').prev().show();
    	});
 
-
-
-	/*$('a[id=btnCancelBranch]').click(function(){
-		$(this).hide();
-   	 	$('#fade , #modal').fadeOut(function() {
-			$('#fade, a.close').remove();  
-		});
-   	});*/
-
-
-
-
 	// Open edit file
    	$('pre[class=text_label]').click(function(){
+
+   			var arrayNew = $(this).text().split('\n');	
+			var lNew = arrayNew.length - 1;
+			var adapt = "";
+
+			for (var i = 0; i < lNew; i++) {
+		        adapt += arrayNew[i].substring(1, arrayNew[i].length);		     
+		    	if(i < lNew-1){
+		    		adapt += "\n";
+		    	}
+		    }
+
    			editComment += 1;
    			// hide comment
         	$(this).hide();
@@ -548,9 +489,9 @@ $(document).ready(function() {
         	// Show cancel button
         	$(this).next().next().show();  
         	// Show commit button
-        	$(this).next().next().next().show();        
+        	$(this).next().next().next().show();        	
         	// Add text in edit box
-        	$(this).next().val($(this).text());
+        	$(this).next().val(adapt);
         	// Resize edit box 
     		$(this).next().height($(this).next().prop("scrollHeight"));
     		// Select it
@@ -562,7 +503,7 @@ $(document).ready(function() {
    	 	if(editComment > 0){
 			editComment -= 1;
 		}
-   	 	// Hide himself
+   	 	// Hide itself
    	 	$(this).hide();
    	 	// Hide commitBtn
    	 	$(this).next().hide();
@@ -578,22 +519,24 @@ $(document).ready(function() {
   		$('#commitMessage').val('New commit');  		
 
   		pathFile = $(this).prev().prev().prev().attr('tag');
-
-     	//	alert($('#repoName').attr('name'));
-     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');
-			 //Effet fade-in du fond opaque
-		$('body').append('<div id="fade"></div>'); //Ajout du fond opaque noir
-		//Apparition du fond - .css({'filter' : 'alpha(opacity=80)'}) pour corriger les bogues de IE
+     	
+     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
+		$('body').append('<div id="fade"></div>');		
 		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 
 		idBlob = $(this).prev().prev().prev().attr('id');
 		newComment = $(this).prev().prev().val();
+		commentType = $(this).prev().prev().prev().attr('type');
 		
-
+		// Hide itself
      	$(this).hide();
+     	// Hide cancelBtn
    	 	$(this).prev().hide();
-   	 	$(this).prev().prev().show();
-   	 	$(this).next().hide();
+   	 	// Hide Edit field
+   	 	$(this).prev().prev().hide();
+   	 	// Show comment
+   	 	$(this).prev().prev().prev().show();
+   	 	//$(this).next().hide();
    	 });
 
    	 $('.btn_close').click(function(){
@@ -636,8 +579,6 @@ $(document).ready(function() {
 		// Check if repo exist
 		isRepoExisting();
 
- 		
-
 		if(repoExist == true){
 
 			branchName = $('#branchName').val();
@@ -657,17 +598,9 @@ $(document).ready(function() {
 			         		this.value = (this.defaultValue ? this.defaultValue : '');		    			         	 
 			     	}
 			     	else{
-
-			     		text = newComment.replace("'", "`");
-
-			         	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
-						$.when(getFileContent(pathBlob, preElement.text(), newComment)).done(function(){
-									
-							getLastCommit();
-									
-						});
+						startCommitProcess();
 			     	}
-			     }
+			     }	
 			     $('#modal, #modalQuestion').fadeOut(function() {
 					$('#login').val("");
 					$('#password').val(""); 
@@ -675,24 +608,18 @@ $(document).ready(function() {
 					$('textarea').prev().show();
 					displaySpinner();
 				});
-					/*$('#login').val("");
-					$('#password').val(""); 
-					$('textarea').hide();
-					$('textarea').prev().show();
-			     displaySpinner();*/
-			}
-		   
+			}	
 		 }
 		 else{
 		 	editComment -= 1;
-		 }
-
-		 
-
+		 }	
 	})
-
-
 });
+
+
+
+
+
 
 /* Parse current URL and return anchor name */
 function currentAnchor() {  
@@ -743,7 +670,7 @@ function highlightBlock(a) {
 
 
 
-function displayMessage(msg, widthDiv){
+function displayMessage(msg, widthDiv, margModal){
 	spinner.stop();
 	//$('#waitCommit').hide();
 	$('#modal').hide();
@@ -751,40 +678,16 @@ function displayMessage(msg, widthDiv){
 	$('#txtQuestion').text(msg);
 	$('#btnCreateBranch').text("Ok");
 	$('#btnCancelBranch').hide();
+	$('#modalQuestion').css({'left' : margModal + '%'})
 	$('#modalQuestion').show();
 	$('#modalQuestion').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btnCloseQuestion" title="Close" alt="Close" /></a>');
 	$('body').append('<div id="fade"></div>');
 	$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
 }
 
-
-
 function displaySpinner(){
-	/*var opts = {
-	  lines: 11, // The number of lines to draw
-	  length: 7, // The length of each line
-	  width: 4, // The line thickness
-	  radius: 10, // The radius of the inner circle
-	  corners: 1, // Corner roundness (0..1)
-	  rotate: 0, // The rotation offset
-	  color: '#FFF', // #rgb or #rrggbb
-	  speed: 1, // Rounds per second
-	  trail: 60, // Afterglow percentage
-	  shadow: false, // Whether to render a shadow
-	  hwaccel: false, // Whether to use hardware acceleration
-	  className: 'spinner', // The CSS class to assign to the spinner
-	  zIndex: 99999, // The z-index (defaults to 2000000000)
-	  top: '300', // Top position relative to parent in px
-	  left: 'auto' // Left position relative to parent in px
-	};
-	var target = document.getElementById('waitCommit');*/
 	spinner.spin(targetSpinner);
 	$("#waitCommit").show();
-	//var spinner2 = new Spinner().spin();
-	//document.getElementById('spinner').appendChild(spinner2.el);
-	//$('#fade').append(spinner2);
-	//$('#spinner').css('z-index:99999;');
-
 }
 
 // Check if the repo already exist
@@ -806,7 +709,7 @@ function isRepoExisting(){
         },
         error: function()
         {        	
-        	displayMessage('Repo not found !', 35);
+        	displayMessage('Repo not found !', 35, 45);
         	repoExist = false;
         }
     });
@@ -861,7 +764,7 @@ function createBranch(){
         },
         error: function(){
         	editComment -= 1;        	
-        	displayMessage('Impossible to create the new branch : ' + branchName, 40);
+        	displayMessage('Impossible to create the new branch : ' + branchName, 40, 40);
         }
     });
 }
@@ -878,7 +781,6 @@ function getMasterSha()
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/master",
         dataType:"json",
         async: false,
-
         success: function(success)
         {
             shaMaster = success.object.sha;
@@ -889,11 +791,6 @@ function getMasterSha()
 function loadContent()
 {
     state = false;
-    //getLastCommit();
-    //getCurrentTree();
-
-    //$("ul").empty();
-
     loadFile();
 }
 
@@ -916,7 +813,6 @@ function getLastCommit()
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName,
         dataType:"json",
         async: false,
-
         success: function(success)
         {
             shaLastCommit = success.object.sha;
@@ -941,12 +837,10 @@ function getBaseTree()
         {   
             shaBaseTree = success.tree.sha;
             if (state){
-                setBlob();
-                //sendPatch();
+                setBlob();                
             }
             else
-            {
-                //getCurrentTree();
+            {                
                 return;
             }
         }
@@ -969,7 +863,6 @@ function setNewTree()
                     '"sha": "'+ shaBlob +'"'+
                 '}] '+
             '}',
-        
         success: function(success)
         { // si l'appel a bien fonctionné
             shaNewTree = JSON.parse(success).sha;
@@ -990,7 +883,6 @@ function setNewCommit()
                 '"parents" :"'+shaLastCommit+'",'+ 
                 '"tree": "'+shaNewTree+'"'+
              '}',
-
         success: function(success)
         {
             shaNewCommit = JSON.parse(success).sha;
@@ -1011,14 +903,12 @@ function commit()
         data:'{ "sha" : "'+shaNewCommit+'", '+
                 '"force" :"true"'+
              '}',
-
         success: function(success)
         {         
-            displayMessage('Commit created successfully', 40);
+            displayMessage('Commit created successfully', 40, 40);
         },
-        error:function(error){
-        	//alert('Error ' + JSON.parse(error).object.message);
-        	displayMessage('Error ' + JSON.parse(error).object.message, 40);
+        error:function(error){        	
+        	displayMessage('Error ' + JSON.parse(error).object.message, 40, 40);
         }
     });
 }
@@ -1026,9 +916,6 @@ function commit()
 // Create a blob
 function setBlob()
 {
-
-	
-
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Authorization",  userB64);	
@@ -1044,20 +931,14 @@ function setBlob()
             shaBlob = JSON.parse(success).sha;
             setNewTree();
         },
-        error:function(jqXHR, textStatus, errorThrown){
-        	//displayMessage('Error : Problem parsing JSON', 40);
-
-        	alert(textStatus);
-		    // you can add different alert here to check
-		    alert(errorThrown);
-		    alert(jqXHR.responseText);
-
+        error:function(error){
+        	displayMessage('Error : Problem parsing JSON', 40, 40);
         }
     });
 }
 
 // Display file content
-function getFileContent(urlFile, t, t2)
+function getFileContent(urlFile, newC)
 {
     $.ajax({
         beforeSend: function (xhr) { 
@@ -1069,20 +950,42 @@ function getFileContent(urlFile, t, t2)
         type: "GET", 
         url: urlFile, 
         async:false,
-
         success: function(success)
         {
-            //$("#fileContent").text(success);
-            //$('.text_label').text(success);
-
             state = true;
-            text = success.replace(t, t2);
-            //alert(text);
-            //return text;
+            replaceComment(newC, success);
         }
     });
 }
 
+function replaceComment(newC, fileContent){	
+	var arrayNew = newC.split('\n');	
+	var lNew = arrayNew.length;
+	text = "";
+
+    var lines = fileContent.split("\n");
+	for (var i = 0; i < lines.length; i++) {
+		if(i == commentLineStart){
+			// We change the comment
+		    for(var j = 0; j < lNew; j++){
+		    	if(commentType == 1){
+		    		text += "\t# " + arrayNew[j] + "\n";
+				}
+        		else{
+        			if(arrayNew[j] == ""){
+        				text += "#"+"\n";
+        			}
+        			else{
+        				text += "# " + arrayNew[j] + "\n";
+        			}        		
+        		}
+        	}
+        }
+        else if(i < commentLineStart || i >= commentLineEnd){
+        	text += lines[i] + "\n";
+        }
+    }
+}
 
 // Get BLOBS of the Tree
 function getBlobsTree(tree)
@@ -1097,7 +1000,6 @@ function getBlobsTree(tree)
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees/" + tree, 
         async:false,
         dataType:'json',
-
         success: function(success)
         {   
             $(success.tree).each(function(index, object){
@@ -1120,42 +1022,19 @@ function getBlobsTree(tree)
     });
 }
 
-
-// Add file in UL
-function addLi(blob, path)
+// Init process to commit the new comment
+function startCommitProcess()
 {
-    $(".menu ul").append('<li id="'+blob.sha+'" name="'+path+'"><a><span class="'+path+'" name="'+path+'" id="'+blob.sha+'">'+blob.path+'</span></a></li>');
+	var numL = preElement.attr("name").split("#L")[1];		         		
+	commentLineStart = numL.split('-')[0] - 1;
+	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
+
+	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+	$.when(getFileContent(pathBlob, newComment)).done(function(){
+		getLastCommit();
+		editComment = false;
+	});
 }
-
-
-/*function sendPatch(){
-	var t = '@@ -1,1 1,1 @@\\n';
-	t += "-Create an array of `count'\\n";
-	t += "+Create an array of `count' elements";
-
-	$.ajax({
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization",  userB64);
-            xhr.setRequestHeader ("Accept", "application/vnd.github.patch");
-        },
-        type: "POST", 
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
-        data:'{ "content" : "'+t+'", '+
-                '"encoding" :"utf-8"'+
-            '}',
-        success: function(success)
-        {
-            //alert(success); 
-            shaBlob = JSON.parse(success).sha;
-            setNewTree();
-        },
-        error:function(error){
-        	displayMessage('Error : Problem parsing JSON', 40);
-        }
-    });
-
-}*/
-
 
 
 

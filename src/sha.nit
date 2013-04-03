@@ -1,5 +1,7 @@
 module sha
 
+import abstracttool
+
 in "C header" `{
 	#include <stdio.h>
 	#include <stdlib.h>
@@ -31,3 +33,14 @@ fun sha1(strsize: Int, str: NativeString):String import String::with_native`{
 	return  new_String_from_cstring(buf);
 `}
 
+fun generateShaLikeGit(fileLocation: Location): String
+do
+	var sha = ""
+	var file = new IFStream.open(fileLocation.file.filename)
+	var size = file.file_stat.size
+	var data = file.read_all
+	file.close
+	sha = "blob {size}\0{data}"
+	var shafile = sha1(sha.length, sha.to_cstring)
+	return shafile
+end
