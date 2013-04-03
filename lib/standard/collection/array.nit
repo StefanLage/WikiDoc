@@ -251,7 +251,8 @@ abstract class AbstractArray[E]
 end
 
 # Resizable one dimension array of objects.
-## Arrays have a literal representation.
+#
+# Arrays have a literal representation.
 #     a = [12, 32, 8]
 # is equivalent with:
 #     a = new Array[Int]
