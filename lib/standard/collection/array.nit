@@ -338,8 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' elements.
-	# test
+	# Create an array of `count' elements. toto
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
