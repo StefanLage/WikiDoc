@@ -338,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' elements. toto
+	# Create an array of `count' elements
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
@@ -365,7 +365,8 @@ class Array[E]
 	var _items: nullable NativeArray[E] = null
 
 	# Do not use this method
-	# FIXME: Remove it once modules can intrude non local modules
+	#  FIXME: Remove it once modules can intrude non local modules
+	# Multi
 	fun intern_items: NativeArray[E] do return _items.as(not null)
 
 	# The size of `_items'.
