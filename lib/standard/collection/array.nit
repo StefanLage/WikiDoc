@@ -314,7 +314,7 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty array.toto
+	# Create an empty array.
 	init
 	do
 		_capacity = 0
@@ -322,6 +322,7 @@ class Array[E]
 	end
 
 	# Create an array with some `items'.
+	# Test
 	init with_items(objects: E...)
 	do
 		_items = objects._items
