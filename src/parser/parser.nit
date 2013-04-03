@@ -32,7 +32,9 @@ class Parser
 	var _stack_pos: Int
 
 	# Create a new parser based on a given lexer
-	# Toto
+	# test
+	# test
+	# test
 	init(lexer: Lexer)
 	do
 		_lexer = lexer
