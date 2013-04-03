@@ -31,8 +31,8 @@ class Parser
 	# Position in the stack
 	var _stack_pos: Int
 
-	# Create a new parser based on a given lexer.
- Test
+	# Create a new parser based on a given lexer
+	# Test
 	init(lexer: Lexer)
 	do
 		_lexer = lexer
@@ -16878,3 +16878,4 @@ private class ReduceAction865
 					p.push(p.go_to(_goto), node_list)
 	end
 end
+
