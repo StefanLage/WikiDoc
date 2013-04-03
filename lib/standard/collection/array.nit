@@ -259,7 +259,8 @@ end
 #     a.push(12)
 #     a.push(32)
 #     a.push(8)
-# toto
+#     a.push(120)
+#
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
