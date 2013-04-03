@@ -258,7 +258,7 @@ end
 #     a = new Array[Int]
 #     a.push(12)
 #     a.push(32)
-#     a.push(120)
+#     a.push(8)
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
@@ -338,7 +338,8 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' elements
+	# Create
+	# toto
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
