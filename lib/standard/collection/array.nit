@@ -250,16 +250,16 @@ abstract class AbstractArray[E]
 	end
 end
 
-	# Resizable one dimension array of objects.
-	# 
-	#  Arrays have a literal representation.
-	#      a = [12, 32, 8]
-	#  is equivalent with:
-	#      a = new Array[Int]
-	#      a.push(12)
-	#      a.push(32)
-	#      a.push(8)
-	# Toto
+# Resizable one dimension array of objects.
+# 
+#  Arrays have a literal representation.
+#      a = [12, 32, 8]
+#  is equivalent with:
+#      a = new Array[Int]
+#      a.push(12)
+#      a.push(32)
+#      a.push(8)
+# toto
 #     a.push(8)
 class Array[E]
 	super AbstractArray[E]
