@@ -259,6 +259,7 @@ end
 #     a.push(12)
 #     a.push(32)
 #     a.push(8)
+# toto
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
@@ -338,8 +339,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create
-	# toto
+	# Create an array of `count' elements
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
