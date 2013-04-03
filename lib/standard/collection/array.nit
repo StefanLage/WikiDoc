@@ -322,7 +322,6 @@ class Array[E]
 	end
 
 	# Create an array with some `items'.
-	# Test
 	init with_items(objects: E...)
 	do
 		_items = objects._items
@@ -367,6 +366,7 @@ class Array[E]
 
 	# Do not use this method
 	# FIXME: Remove it once modules can intrude non local modules
+	# Fixme 2
 	fun intern_items: NativeArray[E] do return _items.as(not null)
 
 	# The size of `_items'.
