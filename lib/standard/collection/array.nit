@@ -251,14 +251,14 @@ abstract class AbstractArray[E]
 end
 
 # Resizable one dimension array of objects.
-#
-# Arrays have a literal representation.
+## Arrays have a literal representation.
 #     a = [12, 32, 8]
 # is equivalent with:
 #     a = new Array[Int]
 #     a.push(12)
 #     a.push(32)
 #     a.push(8)
+# Test
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
@@ -366,7 +366,6 @@ class Array[E]
 
 	# Do not use this method
 	# FIXME: Remove it once modules can intrude non local modules
-	# Fixme 2
 	fun intern_items: NativeArray[E] do return _items.as(not null)
 
 	# The size of `_items'.
