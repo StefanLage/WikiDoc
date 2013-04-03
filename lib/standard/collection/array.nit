@@ -251,7 +251,7 @@ abstract class AbstractArray[E]
 end
 
 # Resizable one dimension array of objects.
-# 
+#
 # Arrays have a literal representation.
 #     a = [12, 32, 8]
 # is equivalent with:
@@ -259,7 +259,6 @@ end
 #     a.push(12)
 #     a.push(32)
 #     a.push(8)
-# Test
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
@@ -315,7 +314,7 @@ class Array[E]
 		_capacity = c
 	end
 
-	# Create an empty array.
+	# Create an empty array.toto
 	init
 	do
 		_capacity = 0
