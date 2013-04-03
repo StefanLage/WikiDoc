@@ -258,10 +258,7 @@ end
 #     a = new Array[Int]
 #     a.push(12)
 #     a.push(32)
-#     a.push(8)
-# toto
-# toto
-# too
+#     a.push(120)
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
