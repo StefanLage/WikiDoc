@@ -640,7 +640,7 @@ redef class MMModule
 		if doc != null then
 			dctx.add("<div id=\"description\">\n")
 			dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>\n")
-			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>\n")
 			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 			dctx.add("</div>\n")
 		end
@@ -1158,9 +1158,16 @@ redef class MMLocalProperty
 					var l = n.location
 					dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
 				end
-				dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
-				dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
+				#dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+				#dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
+			else if not is_redef then
+				if n != null then
+					var l = n.location
+					dctx.add("<a id=\"{generateShaLikeGit(l)}\" class=\"newComment\" tag=\"{l.file.filename}\" title=\"{l.line_start.to_s}\">New comment</a>\n")
+				end
 			end
+			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
 			dctx.add("<p>")
 			if tlp.local_class.global != lc.global then
 				dctx.add("inherited from {tlp.local_class.html_link(dctx)} ")

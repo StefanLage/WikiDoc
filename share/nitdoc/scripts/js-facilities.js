@@ -23,11 +23,12 @@ var password = "";
 var idBlob;
 var commitMessage = "";
 var preElement;
-var newComment;
+var updateComment;
 var editComment = 0;
 var commentLineStart;
 var commentLineEnd;
 var commentType;
+var addNewComment = false;
 
 var opts = {
 	  lines: 11, // The number of lines to draw
@@ -449,7 +450,7 @@ $(document).ready(function() {
 			}
 
 			if(userName != "" && password != ""){	
-				if ($.trim(newComment) == ''){	
+				if ($.trim(updateComment) == ''){	
 		         	this.value = (this.defaultValue ? this.defaultValue : '');		         		
 		     	}
 		     	else{		         	 	
@@ -489,9 +490,11 @@ $(document).ready(function() {
         	// Show cancel button
         	$(this).next().next().show();  
         	// Show commit button
-        	$(this).next().next().next().show();        	
-        	// Add text in edit box
-        	$(this).next().val(adapt);
+        	$(this).next().next().next().show();
+        	// Add text in edit box      
+        	if($(this).next().val() == ""){  	        		
+        		$(this).next().val(adapt);
+        	}
         	// Resize edit box 
     		$(this).next().height($(this).next().prop("scrollHeight"));
     		// Select it
@@ -514,29 +517,33 @@ $(document).ready(function() {
    	 });
 
    	 $('a[id=commitBtn]').click(function(){
-   	 	$('#repoCommit').val($('#repoName').attr('name'));
-  		$('#branchName').val('wikidoc');
-  		$('#commitMessage').val('New commit');  		
-
-  		pathFile = $(this).prev().prev().prev().attr('tag');
-     	
-     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
-		$('body').append('<div id="fade"></div>');		
-		$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-
-		idBlob = $(this).prev().prev().prev().attr('id');
-		newComment = $(this).prev().prev().val();
+   	 	idBlob = $(this).prev().prev().prev().attr('id');
+		updateComment = $(this).prev().prev().val();
 		commentType = $(this).prev().prev().prev().attr('type');
-		
-		// Hide itself
-     	$(this).hide();
-     	// Hide cancelBtn
-   	 	$(this).prev().hide();
-   	 	// Hide Edit field
-   	 	$(this).prev().prev().hide();
-   	 	// Show comment
-   	 	$(this).prev().prev().prev().show();
-   	 	//$(this).next().hide();
+
+		if(updateComment == ""){
+	   	 	displayMessage('The comment field is empty!', 40, 45);
+		}
+		else{
+			$('#repoCommit').val($('#repoName').attr('name'));
+	  		$('#branchName').val('wikidoc');
+	  		$('#commitMessage').val('New commit');  		
+
+	  		pathFile = $(this).prev().prev().prev().attr('tag');	
+	  		
+	     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
+			$('body').append('<div id="fade"></div>');		
+			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
+			// Hide itself
+	     	$(this).hide();
+	     	// Hide cancelBtn
+	   	 	$(this).prev().hide();
+	   	 	// Hide Edit field
+	   	 	$(this).prev().prev().hide();
+	   	 	// Show comment
+	   	 	$(this).prev().prev().prev().show();
+	   	 	//$(this).next().hide();
+		}
    	 });
 
    	 $('.btn_close').click(function(){
@@ -594,7 +601,7 @@ $(document).ready(function() {
 				}
 
 				if(userName != "" && password != ""){	
-					if ($.trim(newComment) == ''){	
+					if ($.trim(updateComment) == ''){	
 			         		this.value = (this.defaultValue ? this.defaultValue : '');		    			         	 
 			     	}
 			     	else{
@@ -613,7 +620,26 @@ $(document).ready(function() {
 		 else{
 		 	editComment -= 1;
 		 }	
-	})
+	});
+
+	$('a[class=newComment]').click(function(){
+   	 	addNewComment = true;
+   	 	//alert("toto");
+   	 	editComment += 1;
+   		// hide comment
+        $(this).hide();
+        // Show edit box 
+        $(this).next().show();
+        // Show cancel button
+        $(this).next().next().show();  
+        // Show commit button
+        $(this).next().next().next().show();        	        
+        // Resize edit box 
+    	$(this).next().height($(this).next().prop("scrollHeight"));
+    	// Select it
+        $(this).next().select();
+        preElement = $(this);  
+   	 });
 });
 
 
@@ -980,10 +1006,16 @@ function replaceComment(newC, fileContent){
         			}        		
         		}
         	}
+        	if(addNewComment == true){
+        		text += lines[i] + "\n";
+        	}
         }
         else if(i < commentLineStart || i >= commentLineEnd){
         	text += lines[i] + "\n";
         }
+    }
+    if(addNewComment == true){
+    	addNewComment = false;
     }
 }
 
@@ -1025,12 +1057,12 @@ function getBlobsTree(tree)
 // Init process to commit the new comment
 function startCommitProcess()
 {
-	var numL = preElement.attr("name").split("#L")[1];		         		
+	var numL = preElement.attr("title");		         		
 	commentLineStart = numL.split('-')[0] - 1;
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
 
 	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
-	$.when(getFileContent(pathBlob, newComment)).done(function(){
+	$.when(getFileContent(pathBlob, updateComment)).done(function(){
 		getLastCommit();
 		editComment = false;
 	});
