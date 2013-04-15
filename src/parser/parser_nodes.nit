@@ -29,12 +29,14 @@ abstract class ANode
 	fun location: Location do return _location.as(not null)
 	# The location of the important part of the node (identifier or whatever)
 	fun hot_location: Location do return location
+# toto
 	init do end
 
 	# Display a message for the colored location of the node
 	fun debug(message: String)
 	do
-		print "{hot_location} {self.class_name}: {message}\n{hot_location.colored_line("0;32")}"
+		print "{hot_location} {self.class_name}: {message}
+{hot_location.colored_line("0;32")}"
 	end
 end
 
@@ -1221,3 +1223,4 @@ class Start
 	    self._n_eof = n_eof
     end
 end
+
