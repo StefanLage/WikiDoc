@@ -29,7 +29,6 @@ abstract class ANode
 	fun location: Location do return _location.as(not null)
 	# The location of the important part of the node (identifier or whatever)
 	fun hot_location: Location do return location
-# toto
 	init do end
 
 	# Display a message for the colored location of the node
@@ -53,6 +52,7 @@ end
 # Ancestor of all productions
 abstract class Prod
 	super ANode
+# Test new comment
 	fun location=(l: Location) do _location = l
 end
 class TEol
