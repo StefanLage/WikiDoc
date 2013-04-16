@@ -338,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 
-	# Create an array of `count' elements.
+	# Create an array of `count' elements. Test
 	init filled_with(value: E, count: Int)
 	do
 		assert positive: count >= 0
@@ -721,4 +721,5 @@ universal NativeArray[E]
 	#fun =(o: NativeArray[E]): Bool is intern
 	#fun !=(o: NativeArray[E]): Bool is intern
 end
+
 
