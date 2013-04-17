@@ -423,7 +423,7 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 
-	$.when(getCommentLastCommit()).done(function(){		
+	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
 		$('pre[class=text_label]').each(function(){
 			getCommentOfFunction($(this));
 		});
@@ -1033,7 +1033,15 @@ function replaceComment(newC, fileContent){
         		}
         	}
         	if(addNewComment == true){
-        		text += lines[i] + "\n";
+        		for(var indexLine=0; indexLine < lines[i+1].length; indexLine++){        			
+        			if(lines[i+1].substr(indexLine,1) == "\t" || lines[i+1].substr(indexLine,1) == "#"){
+        				text += lines[i+1].substr(indexLine,1);
+        			}
+        			else{
+        				break;
+        			}
+        		}  
+        		text += lines[i];   		
         	}
         }
         else if(i < commentLineStart || i >= commentLineEnd){
@@ -1115,18 +1123,22 @@ function startCommitProcess()
 {
 	var numL = preElement.attr("title");		         		
 	commentLineStart = numL.split('-')[0] - 1;
+	if(addNewComment == true){
+		commentLineStart++;
+	}
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
 
-	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/github/blobs/' + idBlob;
+	/*var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/github/blobs/' + idBlob;
 	$.when(getFileContent(pathBlob, updateComment)).done(function(){
 		getLastCommit();
 		editComment = false;
-	});
-	/*state = true;
+	});*/
+
+	state = true;
 	replaceComment(updateComment, currentfileContent);
 	shaLastCommit = lastCommit;	
 	getBaseTree();	
-	editComment = false;*/
+	editComment = false;
 }
 
 var lastCommit = "";
@@ -1145,7 +1157,7 @@ function getLastCommit2()
     });
 }
 
-function getCommentLastCommit(){	
+function getCommentLastCommit(path){	
 
 	getLastCommit2();
 
@@ -1155,7 +1167,7 @@ function getCommentLastCommit(){
         }, */
         type: "GET",
         //url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/lib/standard/collection/array.nit",
-        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/src/poset.nit",
+        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/" + path,
         //dataType:"json",
         async: false,
         success: function(success)
