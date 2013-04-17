@@ -62,7 +62,8 @@ class Message
 		else if l.file == null then
 			return "{yellow}{l}{def}: {text}"
 		else
-			return "{yellow}{l}{def}: {text}\n{l.colored_line("1;31")}"
+			return "{yellow}{l}{def}: {text}
+{l.colored_line("1;31")}"
 		end
 	end
 end
@@ -89,9 +90,11 @@ class ToolContext
 
 			for m in _messages do
 				if opt_no_color.value then
-					stderr.write("{m}\n")
+					stderr.write("{m}
+")
 				else
-					stderr.write("{m.to_color_string}\n")
+					stderr.write("{m.to_color_string}
+")
 				end
 			end
 
@@ -109,7 +112,7 @@ class ToolContext
 		if opt_stop_on_first_error.value then check_errors
 	end
 
-	# Add an error, show errors and quit
+	# Add an error, show errors and quit.
 	fun fatal_error(l: nullable Location, s: String)
 	do
 		error(l,s)
