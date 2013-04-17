@@ -83,8 +83,8 @@ class ToolContext
 	var _messages: Array[Message] = new Array[Message]
 	var _message_sorter: ComparableSorter[Message] = new ComparableSorter[Message]
 	
-	fun check_errors
-	do
+# check errors
+		fun check_errors	do
 		if _messages.length > 0 then
 			_message_sorter.sort(_messages)
 
