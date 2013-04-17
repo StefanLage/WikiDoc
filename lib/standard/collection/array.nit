@@ -365,7 +365,6 @@ class Array[E]
 	var _items: nullable NativeArray[E] = null
 
 	# Do not use this method
-	# FIXME: Remove it once modules can intrude non local modules
 	fun intern_items: NativeArray[E] do return _items.as(not null)
 
 	# The size of `_items'.
