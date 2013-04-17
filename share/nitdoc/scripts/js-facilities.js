@@ -423,6 +423,12 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 
+	$.when(getCommentLastCommit()).done(function(){		
+		$('pre[class=text_label]').each(function(){
+			getCommentOfFunction($(this));
+		});
+	});
+
 	// Cancel creating branch
 	$('#btnCancelBranch').click(function(){
 		editComment -= 1;
@@ -476,7 +482,7 @@ $(document).ready(function() {
 			var adapt = "";
 
 			for (var i = 0; i < lNew; i++) {
-		        adapt += arrayNew[i].substring(1, arrayNew[i].length);		     
+		        adapt += arrayNew[i];		     
 		    	if(i < lNew-1){
 		    		adapt += "\n";
 		    	}
@@ -534,16 +540,18 @@ $(document).ready(function() {
 	     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
 			$('body').append('<div id="fade"></div>');		
 			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-			// Hide itself
-	     	$(this).hide();
-	     	// Hide cancelBtn
-	   	 	$(this).prev().hide();
-	   	 	// Hide Edit field
-	   	 	$(this).prev().prev().hide();
-	   	 	// Show comment
-	   	 	$(this).prev().prev().prev().show();
+			
 	   	 	//$(this).next().hide();
 		}
+
+		// Hide itself
+	    $(this).hide();
+	    // Hide cancelBtn
+	   	$(this).prev().hide();
+	   	// Hide Edit field
+	   	$(this).prev().prev().hide();
+	   	// Show comment
+	   	$(this).prev().prev().prev().show();
    	 });
 
    	 $('.btn_close').click(function(){
@@ -640,6 +648,20 @@ $(document).ready(function() {
         $(this).next().select();
         preElement = $(this);  
    	 });
+
+/*
+	//var toto = 'https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb';
+	//var toto = "https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/5da68da6f5388abc66593570f17ac2dfe5c50bb2";
+	commentLineStart = 341;
+	commentLineEnd = 353;
+	//getFileContent(toto, "test");
+	//getCommentLastCommit();
+
+	$('pre[class=text_label]').each(function(){
+		//alert($(this).text());
+		getCommentOfFunction($(this));
+	});*/
+
 });
 
 
@@ -862,6 +884,7 @@ function getBaseTree()
         success: function(success)
         {   
             shaBaseTree = success.tree.sha;
+
             if (state){
                 setBlob();                
             }
@@ -942,9 +965,11 @@ function commit()
 // Create a blob
 function setBlob()
 {
+	//alert(text);
+	//text = "totototototototototototo";
     $.ajax({
         beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization",  userB64);	
+            xhr.setRequestHeader ("Authorization",  userB64);	            
         },
         type: "POST", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
@@ -980,6 +1005,7 @@ function getFileContent(urlFile, newC)
         {
             state = true;
             replaceComment(newC, success);
+            //getCommentOfFunction(success);
         }
     });
 }
@@ -1011,12 +1037,42 @@ function replaceComment(newC, fileContent){
         	}
         }
         else if(i < commentLineStart || i >= commentLineEnd){
-        	text += lines[i] + "\n";
+        	if(i == lines.length-1){
+        		text += lines[i];
+        	}
+        	else{
+        		text += lines[i] + "\n";
+        	}
         }
     }
     if(addNewComment == true){
     	addNewComment = false;
     }
+}
+
+function getCommentOfFunction(element){
+	var textC = "";
+	//alert(element.attr("title"));
+	var numL = element.attr("title");
+	if(numL != null){		         		
+		commentLineStart = numL.split('-')[0] - 1;
+		commentLineEnd = (commentLineStart + element.text().split('\n').length) - 1;
+
+	    var lines = currentfileContent.split("\n");
+		for (var i = 0; i < lines.length; i++) {
+			if(i >= commentLineStart-1 && i <= commentLineEnd){			
+				if (lines[i].substr(1,1) == "#"){
+					textC += lines[i].substr(3,lines[i].length) + "\n";
+				}
+				else if(lines[i].substr(0,1) == '#'){
+					textC += lines[i].substr(2,lines[i].length) + "\n";
+				}				
+	        }
+	    }    
+	    if (textC != ""){
+	    	element.text(textC);
+	    }    	
+	}	
 }
 
 // Get BLOBS of the Tree
@@ -1061,13 +1117,55 @@ function startCommitProcess()
 	commentLineStart = numL.split('-')[0] - 1;
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
 
-	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/git/blobs/' + idBlob;
+	var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/github/blobs/' + idBlob;
 	$.when(getFileContent(pathBlob, updateComment)).done(function(){
 		getLastCommit();
 		editComment = false;
 	});
+	/*state = true;
+	replaceComment(updateComment, currentfileContent);
+	shaLastCommit = lastCommit;	
+	getBaseTree();	
+	editComment = false;*/
 }
 
+var lastCommit = "";
+var currentfileContent = "";
+function getLastCommit2() 
+{   
+    $.ajax({
+        type: "GET",
+        url: "https://api.github.com/repos/StefanLage/WikiDoc/git/refs/heads/wikidoc",
+        dataType:"json",
+        async: false,
+        success: function(success)
+        {
+        	lastCommit = success.object.sha; 
+        }
+    });
+}
+
+function getCommentLastCommit(){	
+
+	getLastCommit2();
+
+	$.ajax({  
+		/*beforeSend: function (xhr) {             
+        	xhr.setRequestHeader ("Connection", "keep-alive");            
+        }, */
+        type: "GET",
+        //url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/lib/standard/collection/array.nit",
+        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/src/poset.nit",
+        //dataType:"json",
+        async: false,
+        success: function(success)
+        {
+        	//return success.object.sha; 
+        	//alert(success);            	  
+        	currentfileContent = success;   
+        }
+    });
+}
 
 
 base64 = {};
