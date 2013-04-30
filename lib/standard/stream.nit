@@ -15,7 +15,7 @@ package stream
 
 import string
 
-# Abstract stream class
+# Abstract stream class.
 interface IOS
 	# close the stream
 	fun close is abstract
@@ -71,7 +71,8 @@ interface IStream
 			else
 				var c = x.ascii
 				s.push(c)
-				if c == '\n' then return
+				if c == '
+' then return
 			end
 		end
 	end
@@ -148,9 +149,11 @@ abstract class BufferedIStream
 	redef fun append_line_to(s)
 	do
 		loop
-			# First phase: look for a '\n'
+			# First phase: look for a '
+'
 			var i = _buffer_pos
-			while i < _buffer.length and _buffer[i] != '\n' do i += 1
+			while i < _buffer.length and _buffer[i] != '
+' do i += 1
 
 			# if there is something to append
 			if i > _buffer_pos then
@@ -166,11 +169,14 @@ abstract class BufferedIStream
 			end
 
 			if i < _buffer.length then
-				# so \n is in _buffer[i]
-				_buffer_pos = i + 1 # skip \n
+				# so 
+ is in _buffer[i]
+				_buffer_pos = i + 1 # skip 
+
 				return
 			else
-				# so \n is not found
+				# so 
+ is not found
 				_buffer_pos = i
 				if end_reached then
 					return
