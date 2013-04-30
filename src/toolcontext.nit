@@ -83,24 +83,21 @@ class ToolContext
 	var _messages: Array[Message] = new Array[Message]
 	var _message_sorter: ComparableSorter[Message] = new ComparableSorter[Message]
 	
-# check errors
-		fun check_errors	do
+	# check errors
+	fun check_errors	
+	do
 		if _messages.length > 0 then
 			_message_sorter.sort(_messages)
 
 			for m in _messages do
 				if opt_no_color.value then
-					stderr.write("{m}
-")
+					stderr.write("{m}")
 				else
-					stderr.write("{m.to_color_string}
-")
+					stderr.write("{m.to_color_string}")
 				end
 			end
-
 			_messages.clear
 		end
-
 		if error_count > 0 then exit(1)
 	end
 
