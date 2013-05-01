@@ -190,7 +190,6 @@ class DocContext
 		self.filename = "index.html"
 		clear
 		addGithubInformation
-		add("<div id=\"repoName\" name=\"{github_repo.to_s}\"></div>")
 		addCommitForm
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Overview | {custom_title}</title></head><body>\n")
