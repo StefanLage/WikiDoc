@@ -29,6 +29,7 @@ var commentLineStart;
 var commentLineEnd;
 var commentType;
 var addNewComment = false;
+var sessionStarted = false;
 
 var opts = {
 	  lines: 11, // The number of lines to draw
@@ -422,6 +423,7 @@ $(document).ready(function() {
 	$('textarea').hide();
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
+	$(".popover").hide();
 
 	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
 		$('pre[class=text_label]').each(function(){
@@ -436,8 +438,8 @@ $(document).ready(function() {
    	 	$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
 		});
-   	 	$('textarea').hide();
-   	 	$('textarea').prev().show();
+   	 	//$('textarea').hide();
+   	 	//$('textarea').prev().show();
 		stop();
    	});
 
@@ -448,20 +450,11 @@ $(document).ready(function() {
    	 	if($('#btnCreateBranch').text() != 'Ok'){
 	   	 	// Create the branch
 	   	 	createBranch();
-
    	 		commitMessage = $('#commitMessage').val();
-			
-			if(commitMessage == ""){
-				commitMessage = "New commit";
-			}
-
+			if(commitMessage == ""){ commitMessage = "New commit"; }
 			if(userName != "" && password != ""){	
-				if ($.trim(updateComment) == ''){	
-		         	this.value = (this.defaultValue ? this.defaultValue : '');		         		
-		     	}
-		     	else{		         	 	
-					startCommitProcess();
-		     	}
+				if ($.trim(updateComment) == ''){ this.value = (this.defaultValue ? this.defaultValue : ''); }
+		     	else{ startCommitProcess(); }
 		    }
 		}
 		else
@@ -470,22 +463,25 @@ $(document).ready(function() {
 				$('#fade, a.close').remove();  
 			});
 		}
-		$('textarea').hide();
-		$('textarea').prev().show();
+		//$('textarea').hide();
+		//$('textarea').prev().show();
    	});
 
 	// Open edit file
    	$('pre[class=text_label]').click(function(){
-
+   			// the customer is loggued ?
+			if(sessionStarted == false || userName == ""){
+				// No => nothing happen
+				return;
+			}
+			else{
    			var arrayNew = $(this).text().split('\n');	
 			var lNew = arrayNew.length - 1;
 			var adapt = "";
 
 			for (var i = 0; i < lNew; i++) {
 		        adapt += arrayNew[i];		     
-		    	if(i < lNew-1){
-		    		adapt += "\n";
-		    	}
+		    	if(i < lNew-1){ adapt += "\n"; }
 		    }
 
    			editComment += 1;
@@ -498,20 +494,17 @@ $(document).ready(function() {
         	// Show commit button
         	$(this).next().next().next().show();
         	// Add text in edit box      
-        	if($(this).next().val() == ""){  	        		
-        		$(this).next().val(adapt);
-        	}
+        	if($(this).next().val() == ""){ $(this).next().val(adapt); }
         	// Resize edit box 
     		$(this).next().height($(this).next().prop("scrollHeight"));
     		// Select it
         	$(this).next().select();
-        	preElement = $(this);     
+        	preElement = $(this);   
+    	}  
     });
 
    	 $('a[id=cancelBtn]').click(function(){
-   	 	if(editComment > 0){
-			editComment -= 1;
-		}
+   	 	if(editComment > 0){ editComment -= 1; }
    	 	// Hide itself
    	 	$(this).hide();
    	 	// Hide commitBtn
@@ -527,56 +520,74 @@ $(document).ready(function() {
 		updateComment = $(this).prev().prev().val();
 		commentType = $(this).prev().prev().prev().attr('type');
 
-		if(updateComment == ""){
-	   	 	displayMessage('The comment field is empty!', 40, 45);
-		}
+		if(updateComment == ""){ displayMessage('The comment field is empty!', 40, 45); }
 		else{
+			/*if (checkCookie() == true)
+			{
+				  	$('#login').hide();
+				  	$('#password').hide();
+				  	$('#password2').hide();				  	
+				  	$('#logerName').hide();
+				  	$('#logginName').text("Logged as " + userName );
+				  	$('#logginName').show();
+				  	$('#repoCommit2').css({'margin-top' : '20px'});
+				  	$("#btnGitHub").text("Commit");
+				  	sessionStarted = true;
+
+			}
+			else
+			{
+					sessionStarted = false;
+
+			}*/
+
+			if(sessionStarted == false){
+				displayMessage("You need to be loggued before commit something", 45, 40);
+				displayLogginModal();				
+				return;
+			}
+
 			$('#repoCommit').val($('#repoName').attr('name'));
 	  		$('#branchName').val('wikidoc');
 	  		$('#commitMessage').val('New commit');  		
-
 	  		pathFile = $(this).prev().prev().prev().attr('tag');	
-	  		
-	     	$('#modal' ).show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
+			$('#modal').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
 			$('body').append('<div id="fade"></div>');		
 			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-			
 	   	 	//$(this).next().hide();
 		}
 
 		// Hide itself
-	    $(this).hide();
+	    //$(this).hide();
 	    // Hide cancelBtn
-	   	$(this).prev().hide();
+	   	//$(this).prev().hide();
 	   	// Hide Edit field
-	   	$(this).prev().prev().hide();
+	   	//$(this).prev().prev().hide();
 	   	// Show comment
-	   	$(this).prev().prev().prev().show();
+	   	//$(this).prev().prev().prev().show();
    	 });
+
+	
 
    	 $('.btn_close').click(function(){
    	 	$(this).hide();
-   	 	$(this).prev().hide();
-   	 	$(this).prev().prev().show();
+   	 	//$(this).prev().hide();
+   	 	//$(this).prev().prev().show();
    	 	$(this).next().hide();
-   	 	$('textarea').hide();
+   	 	//$('textarea').hide();
 
-   	 	if(editComment > 0){
-			editComment -= 1;
-		}
+   	 	if(editComment > 0){ editComment -= 1; }
    	 });
 
 
 	//Close Popups and Fade Layer
-	$('body').on('click', 'a.close, #fade', function() { //Au clic sur le body...
-		if(editComment > 0){
-			editComment -= 1;
-		}
+	$('body').on('click', 'a.close, #fade', function() { // Au clic sur le body...
+		if(editComment > 0){ editComment -= 1; }
 		$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
 		});
-		$('textarea').hide();
-		$('textarea').prev().show();
+		//$('textarea').hide();
+		//$('textarea').prev().show();		
 		$('#modalQuestion').hide();
 	});
 
@@ -585,36 +596,32 @@ $(document).ready(function() {
 		var text;
 		var url;
 		var line;
+		// Look if the customer is logged
+		if(sessionStarted == false){
+			displayMessage("You need to be loggued before commit something", 100, 40);	
+			$('.popover').show();
+			return;
+		}		
+		else{ userB64 = "Basic " + getCookie("logginNitdoc"); }
 
-		userName = $('#login').val();
-		password = $('#password').val();
-		userB64 = "Basic " +  base64.encode(userName+':'+password);
 		githubRepo = $('#repoCommit').val();
 		
 		// Check if repo exist
 		isRepoExisting();
 
 		if(repoExist == true){
-
 			branchName = $('#branchName').val();
 			isBranchExisting();
 
 			if(branchExist == true){
 				
 				editComment -= 1;
-				commitMessage = $('#commitMessage').val();
-				
-				if(commitMessage == ""){
-					commitMessage = "New commit";
-				}
+				commitMessage = $('#commitMessage').val();			
+				if(commitMessage == ""){ commitMessage = "New commit";}
 
-				if(userName != "" && password != ""){	
-					if ($.trim(updateComment) == ''){	
-			         		this.value = (this.defaultValue ? this.defaultValue : '');		    			         	 
-			     	}
-			     	else{
-						startCommitProcess();
-			     	}
+				if(sessionStarted == true){	
+					if ($.trim(updateComment) == ''){ this.value = (this.defaultValue ? this.defaultValue : ''); }
+			     	else{ startCommitProcess(); }
 			     }	
 			     $('#modal, #modalQuestion').fadeOut(function() {
 					$('#login').val("");
@@ -623,11 +630,11 @@ $(document).ready(function() {
 					$('textarea').prev().show();
 					displaySpinner();
 				});
+			    $('a[id=cancelBtn]').hide();
+   	 			$('a[id=commitBtn]').hide();
 			}	
 		 }
-		 else{
-		 	editComment -= 1;
-		 }	
+		 else{ editComment -= 1; }	
 	});
 
 	$('a[class=newComment]').click(function(){
@@ -648,6 +655,37 @@ $(document).ready(function() {
         $(this).next().select();
         preElement = $(this);  
    	 });
+
+	// Sign In an github user or Log out him
+	$("#signIn").click(function(){
+		if(sessionStarted == false){
+			if($('#loginGit').val() == "" || $('#passwordGit').val() == ""){ displayMessage('The comment field is empty!', 40, 45); }
+			else
+			{
+				userName = $('#loginGit').val();
+				password = $('#passwordGit').val();
+				userB64 = "Basic " +  base64.encode(userName+':'+password);
+				setCookie("logginNitdoc", base64.encode(userName+':'+password), 1);				
+				$('#loginGit').val("");
+				$('#passwordGit').val("");
+			}
+		}	
+		else
+		{
+			// Delete cookie and reset settings
+			del_cookie("logginNitdoc");
+		}	
+		displayLogginModal();
+
+	});
+
+	// popover demo
+    $("#logGitHub").click(function(){    	
+    	displayLogginModal();
+    }); 
+    
+    updateDisplaying();
+    
 
 /*
 	//var toto = 'https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb';
@@ -884,7 +922,6 @@ function getBaseTree()
         success: function(success)
         {   
             shaBaseTree = success.tree.sha;
-
             if (state){
                 setBlob();                
             }
@@ -965,8 +1002,6 @@ function commit()
 // Create a blob
 function setBlob()
 {
-	//alert(text);
-	//text = "totototototototototototo";
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Authorization",  userB64);	            
@@ -1018,22 +1053,8 @@ function replaceComment(newC, fileContent){
     var lines = fileContent.split("\n");
 	for (var i = 0; i < lines.length; i++) {
 		if(i == commentLineStart){
-			// We change the comment
-		    for(var j = 0; j < lNew; j++){
-		    	if(commentType == 1){
-		    		text += "\t# " + arrayNew[j] + "\n";
-				}
-        		else{
-        			if(arrayNew[j] == ""){
-        				text += "#"+"\n";
-        			}
-        			else{
-        				text += "# " + arrayNew[j] + "\n";
-        			}        		
-        		}
-        	}
-        	if(addNewComment == true){
-        		for(var indexLine=0; indexLine < lines[i+1].length; indexLine++){        			
+			if(addNewComment == true){
+        		for(var indexLine=0; indexLine < lines[i+1].length; indexxLine++){        			
         			if(lines[i+1].substr(indexLine,1) == "\t" || lines[i+1].substr(indexLine,1) == "#"){
         				text += lines[i+1].substr(indexLine,1);
         			}
@@ -1041,7 +1062,23 @@ function replaceComment(newC, fileContent){
         				break;
         			}
         		}  
-        		text += lines[i];   		
+        		text += lines[i] + "\n";   		
+        	}
+        	else{
+				// We change the comment
+			    for(var j = 0; j < lNew; j++){
+			    	if(commentType == 1){
+			    		text += "\t# " + arrayNew[j] + "\n";
+					}
+	        		else{
+	        			if(arrayNew[j] == ""){
+	        				text += "#"+"\n";
+	        			}
+	        			else{
+	        				text += "# " + arrayNew[j] + "\n";
+	        			}        		
+	        		}
+	        	}
         	}
         }
         else if(i < commentLineStart || i >= commentLineEnd){
@@ -1178,6 +1215,105 @@ function getCommentLastCommit(path){
         }
     });
 }
+
+function displayLogginModal(){
+	if ($('.popover').is(':hidden')) {		
+		$('.popover').show();
+	}
+	else {
+		$('.popover').hide();
+	}
+	updateDisplaying();
+}
+
+function updateDisplaying(){
+	if (checkCookie() == true)
+	{
+	  	$('#loginGit').hide();
+	  	$('#passwordGit').hide();
+	  	$('#lbpasswordGit').hide();		
+	  	$('#lbloginGit').hide();	  			  		 
+	  	$("#liGitHub").attr("class", "current");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon.png");
+	  	$('#nickName').text(userName);	  	
+	  	$('#githubAccount').attr("href", "https://github.com/"+userName);
+	  	$('#logginMessage').css({'display' : 'block'});
+	  	$('#logginMessage').css({'text-align' : 'center'});	
+	  	$('.popover').css({'height' : '80px'});	
+	  	$('#signIn').text("Sign out");	
+	  	sessionStarted = true;
+	}
+	else
+	{
+		sessionStarted = false;
+		$('#logginMessage').css({'display' : 'none'});
+		$("#liGitHub").attr("class", "");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon_black.png");
+	  	$('#loginGit').val("");
+		$('#passwordGit').val("");
+		$('#nickName').text("");
+  		$('.popover').css({'height' : '160px'});	
+  		$('#logginMessage').css({'display' : 'none'});
+		$('#loginGit').show();
+	  	$('#passwordGit').show();
+	  	$('#lbpasswordGit').show();
+	  	$('#lbloginGit').show();			  		
+	  	$('#signIn').text("Sign In");
+	}
+}
+
+function setCookie(c_name, value, exdays)
+{
+	var exdate=new Date();
+	exdate.setDate(exdate.getDate() + exdays);
+	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+	document.cookie=c_name + "=" + c_value;
+}
+
+function del_cookie(c_name)
+{
+    document.cookie = c_name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+function getCookie(c_name)
+{
+	var c_value = document.cookie;
+	var c_start = c_value.indexOf(" " + c_name + "=");
+	if (c_start == -1)
+	  {
+	  c_start = c_value.indexOf(c_name + "=");
+	  }
+	if (c_start == -1)
+	  {
+	  c_value = null;
+	  }
+	else
+	  {
+	  c_start = c_value.indexOf("=", c_start) + 1;
+	  var c_end = c_value.indexOf(";", c_start);
+	  if (c_end == -1)
+	  {
+	c_end = c_value.length;
+	}
+	c_value = unescape(c_value.substring(c_start,c_end));
+	}
+	return c_value;
+}
+
+function checkCookie()
+{
+	var username=getCookie("logginNitdoc");
+	if (username!=null && username!="")
+	{
+		userName = base64.decode(username).split(':')[0];	  	
+	  	return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 
 
 base64 = {};
