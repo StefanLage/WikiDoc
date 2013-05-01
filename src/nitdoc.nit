@@ -30,7 +30,7 @@ class DocContext
 	readable writable var _dir: String = "doc"
 
 	# GitHub Repo name
-	var github_repo: String = ""
+	var github_repo: nullable String = null
 
 	# Content of a generated file
 	var _stage_context: StageContext = new StageContext(null)
@@ -95,7 +95,7 @@ class DocContext
 	readable var _opt_custom_title: OptionString = new OptionString("Title displayed in the top of the Overview page and as suffix of all page names", "--custom-title")
 	readable var _opt_custom_overview_text: OptionString = new OptionString("Text displayed as introduction of Overview page before the modules list", "--custom-overview-text")
 	readable var _opt_custom_footer_text: OptionString = new OptionString("Text displayed as footer of all pages", "--custom-footer-text")
-	readable var _opt_github_repo_name: OptionString = new OptionString("GitHub repo name", "--git")
+	readable var _opt_github_repo_name: OptionString = new OptionString("GitHub repo name", "--github")
 	var sharedir: nullable String
 
 	fun public_only: Bool
@@ -189,9 +189,9 @@ class DocContext
 		# generate the index
 		self.filename = "index.html"
 		clear
-		if github_repo == "" then github_repo = args[0].to_s
-		add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Commit on GitHub\"><img src=\"resources/icons/github-icon.png\"><span id=\"btnGitHub\"><strong>Commit</strong></span></a></form></form></div><div id=\"modalQuestion\"><label id=\"txtQuestion\"></label><br><a id=\"btnCreateBranch\">Yes</a><a id=\"btnCancelBranch\">No</a></div><div id=\"waitCommit\"></div>\n\n")
+		addGithubInformation
+		add("<div id=\"repoName\" name=\"{github_repo.to_s}\"></div>")
+		addCommitForm
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Overview | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -236,8 +236,8 @@ class DocContext
 			self.filename = mod.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">{mod.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li><li id=\"liGitHub\" class=\"\"><a id=\"logGitHub\" class=\"btn\" ><img id=\"imgGitHub\" src=\"resources/icons/github-icon_black.png\" /></a><div class=\"popover bottom\"><div class=\"arrow\"></div><div><label id=\"lbloginGit\" for=\"login\">Username</label><input id=\"loginGit\" type=\"text\" name=\"login\"><label id=\"logginMessage\" >Hello <a id=\"githubAccount\" ><strong id=\"nickName\"></strong></a></label></div><div><label id=\"lbpasswordGit\" for=\"password\">Password</label><input id=\"passwordGit\" type=\"password\" name=\"password\"></div><div id=\"divlogIn\"><a id=\"signIn\" >Sign In</a></div></div></li></ul></nav></header>\n"
 			clear
-			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")	
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Commit on GitHub\"><img src=\"resources/icons/github-icon.png\"><span id=\"btnGitHub\"><strong>Commit</strong></span></a></form></form></div><div id=\"modalQuestion\"><label id=\"txtQuestion\"></label><br><a id=\"btnCreateBranch\">Yes</a><a id=\"btnCancelBranch\">No</a></div><div id=\"waitCommit\"></div>\n\n")
+			addGithubInformation
+			addCommitForm
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{mod.name} module | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -255,8 +255,8 @@ class DocContext
 			self.filename = c.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li>{c.global.intro.mmmodule.toplevel_owner.html_link(self)}</li><li class=\"current\">{c.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li><li id=\"liGitHub\" class=\"\"><a id=\"logGitHub\" class=\"btn\" ><img id=\"imgGitHub\" src=\"resources/icons/github-icon_black.png\" /></a><div class=\"popover bottom\"><div class=\"arrow\"></div><div><label id=\"lbloginGit\" for=\"login\">Username</label><input id=\"loginGit\" type=\"text\" name=\"login\"><label id=\"logginMessage\" >Hello <a id=\"githubAccount\" ><strong id=\"nickName\"></strong></a></label></div><div><label id=\"lbpasswordGit\" for=\"password\">Password</label><input id=\"passwordGit\" type=\"password\" name=\"password\"></div><div id=\"divlogIn\"><a id=\"signIn\" >Sign In</a></div></div></li></ul></nav></header>\n"
 			clear
-			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Commit on GitHub\"><img src=\"resources/icons/github-icon.png\"><span id=\"btnGitHub\"><strong>Commit</strong></span></a></form></form></div><div id=\"modalQuestion\"><label id=\"txtQuestion\"></label><br><a id=\"btnCreateBranch\">Yes</a><a id=\"btnCancelBranch\">No</a></div><div id=\"waitCommit\"></div>\n\n")
+			addGithubInformation
+			addCommitForm
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{c.name} class | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -271,8 +271,8 @@ class DocContext
 		self.filename = "fullindex"
 		action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">Full Index</li><li><a href=\"help.html\">Help</a></li><li id=\"liGitHub\" class=\"\"><a id=\"logGitHub\" class=\"btn\" ><img id=\"imgGitHub\" src=\"resources/icons/github-icon_black.png\" /></a><div class=\"popover bottom\"><div class=\"arrow\"></div><div><label id=\"lbloginGit\" for=\"login\">Username</label><input id=\"loginGit\" type=\"text\" name=\"login\"><label id=\"logginMessage\" >Hello <a id=\"githubAccount\" ><strong id=\"nickName\"></strong></a></label></div><div><label id=\"lbpasswordGit\" for=\"password\">Password</label><input id=\"passwordGit\" type=\"password\" name=\"password\"></div><div id=\"divlogIn\"><a id=\"signIn\" >Sign In</a></div></div></li></ul></nav></header>\n"
 		clear
-		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Commit on GitHub\"><img src=\"resources/icons/github-icon.png\"><span id=\"btnGitHub\"><strong>Commit</strong></span></a></form></form></div><div id=\"modalQuestion\"><label id=\"txtQuestion\"></label><br><a id=\"btnCreateBranch\">Yes</a><a id=\"btnCancelBranch\">No</a></div><div id=\"waitCommit\"></div>\n\n")
+		addGithubInformation
+		addCommitForm
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Full Index | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -291,6 +291,15 @@ class DocContext
 		write_to("{dir}/quicksearch-list.js")
 	end
 
+	# Add or not a tag for the github repository
+	fun addGithubInformation do
+		if not github_repo == null then add("<div id=\"repoName\" name=\"{github_repo.to_s}\"></div>")	
+	end
+	
+	# Add all tags for the commit form
+	fun addCommitForm do	
+		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Commit on GitHub\"><img src=\"resources/icons/github-icon.png\"><span id=\"btnGitHub\"><strong>Commit</strong></span></a></form></form></div><div id=\"modalQuestion\"><label id=\"txtQuestion\"></label><br><a id=\"btnCreateBranch\">Yes</a><a id=\"btnCancelBranch\">No</a></div><div id=\"waitCommit\"></div>\n\n")
+	end
 
 	# Add a (source) link fo a given location
 	fun show_source(l: Location)
@@ -1069,7 +1078,6 @@ redef class MMLocalProperty
 		dctx.add("<article id=\"{html_anchor}\" class=\"{kind} {visibility} {if is_redef then "redef" else ""}\">\n")
 		dctx.add("<h3 class=\"signature\">{html_name}{signature.to_html(dctx, true)}</h3>\n")
 		dctx.add("<div class=\"info\">\n")
-		#dctx.add("<p>LP: {self.mmmodule.html_link(dctx)}::{self.local_class.html_link(dctx)}::{self.html_link(dctx)}</p>")
 
 		if is_redef then
 			dctx.add("redef ")
@@ -1111,114 +1119,100 @@ redef class MMLocalProperty
 			end
 		end
 		if introdoc then
-			#if is_redef then
-				#	dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{global.intro.doc.to_html}</pre>")
-				#else
-					dctx.add("<pre class=\"text_label\" name=\"{html_name}\" >{global.intro.doc.to_html}</pre>")
-					#end
-					dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
-					dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
+			dctx.add("<pre class=\"text_label\" name=\"{html_name}\" >{global.intro.doc.to_html}</pre>")
+			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
+		end
+
+		var tlmods = new Array[MMModule]
+		for lp in lps do
+			var bm = lp.mmmodule.toplevel_owner
+			var lcm = lc.global.intro.mmmodule
+			if lcm.mhe < lp.mmmodule then bm = lcm.toplevel_owner
+			if not tlmods.has(bm) then tlmods.add(bm)
+		end
+
+		for tm in tlmods do
+			# Document the top level property for the current top level module
+			var tlp
+			if tm.global_classes.has(lc.global) then
+				tlp = tm[lc.global][self.global]
+				assert lps.has(tlp)
+			else if tm.global_classes.has(self.local_class.global) then
+				# Self is the inherited property. Process it
+				tlp = tm[self.local_class.global][self.global]
+				assert lps.has(tlp)
+			else
+				# We skip this module since the props defined by the module is  
+				continue
+			end
+
+			var tlcm = lc.global.intro.mmmodule.toplevel_owner
+			if not tlcm.mhe <= tm then
+				dctx.add("<h4>In module {tm.html_link(dctx)} :</h4>")
+			end
+
+			var doc = tlp.doc
+			var n = tlp.node
+			if doc != null and (not introdoc or global.intro.doc != doc) then
+				if n != null then
+					var l = n.location
+					dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
+				end
+			else if not is_redef then
+				if n != null then
+					var l = n.location
+					dctx.add("<a id=\"{generateShaLikeGit(l)}\" class=\"newComment\" tag=\"{l.file.filename}\" title=\"{l.line_start.to_s}\">New comment</a>\n")
+				end
+			end
+			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
+			dctx.add("<p>")
+			if tlp.local_class.global != lc.global then
+				dctx.add("inherited from {tlp.local_class.html_link(dctx)} ")
+			end
+			if tm != tlp.mmmodule then
+				dctx.add("defined by the module {tlp.mmmodule.html_link(dctx)} ")
+			end
+			if n != null then
+				var l = n.location
+				dctx.show_source(l)
+			end
+
+			dctx.open_stage
+			dctx.stage(". previously defined by:")
+			for lp in lps do
+				var tl = lp.mmmodule.toplevel_owner
+				if tl != tm then continue
+				if lp == tlp then continue
+				dctx.add(" {lp.mmmodule.html_link(dctx)}")
+				if lp.local_class.global != lc.global then
+					dctx.add(" for {lp.local_class.html_link(dctx)} ")
 				end
 
-				var tlmods = new Array[MMModule]
-				for lp in lps do
-					var bm = lp.mmmodule.toplevel_owner
-					var lcm = lc.global.intro.mmmodule
-					if lcm.mhe < lp.mmmodule then bm = lcm.toplevel_owner
-					if not tlmods.has(bm) then tlmods.add(bm)
+				n = lp.node
+				if n != null then
+					var l = n.location
+					dctx.show_source(l)
 				end
 
-				for tm in tlmods do
-					# Document the top level property for the current top level module
-					var tlp
-					if tm.global_classes.has(lc.global) then
-						tlp = tm[lc.global][self.global]
-						assert lps.has(tlp)
-					else if tm.global_classes.has(self.local_class.global) then
-						# Self is the inherited property. Process it
-						tlp = tm[self.local_class.global][self.global]
-						assert lps.has(tlp)
-					else
-						# We skip this module since the props defined by the module is  
-						continue
-					end
+			end
+			dctx.close_stage
+			dctx.add("</p>")
 
-					var tlcm = lc.global.intro.mmmodule.toplevel_owner
-					if not tlcm.mhe <= tm then
-						dctx.add("<h4>In module {tm.html_link(dctx)} :</h4>")
-					end
+		end
+		dctx.add("</div>")
+		dctx.add("</article>")
+	end
 
-					#dctx.add("<p>TLP: {tm} x {lc} : {tlp.full_name}</p>")
-
-					var doc = tlp.doc
-					var n = tlp.node
-					if doc != null and (not introdoc or global.intro.doc != doc) then
-						#dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>")
-						if n != null then
-							var l = n.location
-							dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
-						end
-						#dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
-						#dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
-					else if not is_redef then
-						if n != null then
-							var l = n.location
-							dctx.add("<a id=\"{generateShaLikeGit(l)}\" class=\"newComment\" tag=\"{l.file.filename}\" title=\"{l.line_start.to_s}\">New comment</a>\n")
-						end
-					end
-					dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
-					dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
-					dctx.add("<p>")
-					if tlp.local_class.global != lc.global then
-						dctx.add("inherited from {tlp.local_class.html_link(dctx)} ")
-					end
-					if tm != tlp.mmmodule then
-						dctx.add("defined by the module {tlp.mmmodule.html_link(dctx)} ")
-					end
-					#var n = tlp.node
-					if n != null then
-						var l = n.location
-						dctx.show_source(l)
-					end
-
-					dctx.open_stage
-					dctx.stage(". previously defined by:")
-					for lp in lps do
-						var tl = lp.mmmodule.toplevel_owner
-						if tl != tm then continue
-						if lp == tlp then continue
-						dctx.add(" {lp.mmmodule.html_link(dctx)}")
-						if lp.local_class.global != lc.global then
-							dctx.add(" for {lp.local_class.html_link(dctx)} ")
-						end
-
-						n = lp.node
-						if n != null then
-							var l = n.location
-							dctx.show_source(l)
-						end
-
-						#var doc = lp.doc
-						#if doc != null and (not introdoc or global.intro.doc != doc) then
-							#	dctx.add("<pre>{doc.to_html}</pre>")
-							#end
-						end
-						dctx.close_stage
-						dctx.add("</p>")
-
-					end
-					dctx.add("</div>")
-					dctx.add("</article>")
-				end
-
-				fun generateShaFile(fileLocation: Location): String 
-				do
-					var sha = ""
-					var file = new IFStream.open(fileLocation.file.filename)
-					var size = file.file_stat.size
-					var data = file.read_all
-					file.close	
-					sha = "blob {size}\0{data}"
+	fun generateShaFile(fileLocation: Location): String 
+	do
+		var sha = ""
+		var file = new IFStream.open(fileLocation.file.filename)
+		var size = file.file_stat.size
+		var data = file.read_all
+		file.close	
+		sha = "blob {size}\0{data}"
 		var shafile = sha1(sha.length, sha.to_cstring)
 		return shafile
 	end
@@ -1796,10 +1790,6 @@ end
 redef class MMVirtualType
 	redef fun html_link(dctx) do return property.html_link(dctx)
 end
-
-
-
-
 
 var c = new DocContext
 c.exec_cmd_line
