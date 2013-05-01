@@ -20,7 +20,6 @@ var githubRepo = "";
 var branchExist = false;
 var userName = "";
 var password = "";
-var idBlob;
 var commitMessage = "";
 var preElement;
 var updateComment;
@@ -515,8 +514,7 @@ $(document).ready(function() {
    	 	$(this).prev().prev().show();
    	 });
 
-   	 $('a[id=commitBtn]').click(function(){
-   	 	idBlob = $(this).prev().prev().prev().attr('id');
+   	 $('a[id=commitBtn]').click(function(){   	 	
 		updateComment = $(this).prev().prev().val();
 		commentType = $(this).prev().prev().prev().attr('type');
 
@@ -1164,13 +1162,6 @@ function startCommitProcess()
 		commentLineStart++;
 	}
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
-
-	/*var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/github/blobs/' + idBlob;
-	$.when(getFileContent(pathBlob, updateComment)).done(function(){
-		getLastCommit();
-		editComment = false;
-	});*/
-
 	state = true;
 	replaceComment(updateComment, currentfileContent);
 	shaLastCommit = lastCommit;	
@@ -1234,7 +1225,7 @@ function updateDisplaying(){
 	  	$('#lbpasswordGit').hide();		
 	  	$('#lbloginGit').hide();	  			  		 
 	  	$("#liGitHub").attr("class", "current");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-icon.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-white.png");
 	  	$('#nickName').text(userName);	  	
 	  	$('#githubAccount').attr("href", "https://github.com/"+userName);
 	  	$('#logginMessage').css({'display' : 'block'});
@@ -1248,7 +1239,7 @@ function updateDisplaying(){
 		sessionStarted = false;
 		$('#logginMessage').css({'display' : 'none'});
 		$("#liGitHub").attr("class", "");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-icon_black.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-black.png");
 	  	$('#loginGit').val("");
 		$('#passwordGit').val("");
 		$('#nickName').text("");
