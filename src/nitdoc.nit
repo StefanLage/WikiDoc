@@ -1157,12 +1157,12 @@ redef class MMLocalProperty
 			if doc != null and (not introdoc or global.intro.doc != doc) then
 				if n != null then
 					var l = n.location
-					dctx.add("<pre id=\"{generateShaLikeGit(l)}\" type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
+					dctx.add("<pre type=\"1\" class=\"text_label\" tag=\"{l.file.filename}\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
 				end
 			else if not is_redef then
 				if n != null then
 					var l = n.location
-					dctx.add("<a id=\"{generateShaLikeGit(l)}\" class=\"newComment\" tag=\"{l.file.filename}\" title=\"{l.line_start.to_s}\">New comment</a>\n")
+					dctx.add("<a class=\"newComment\" tag=\"{l.file.filename}\" title=\"{l.line_start.to_s}\">New comment</a>\n")
 				end
 			end
 			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
@@ -1203,18 +1203,6 @@ redef class MMLocalProperty
 		end
 		dctx.add("</div>")
 		dctx.add("</article>")
-	end
-
-	fun generateShaFile(fileLocation: Location): String 
-	do
-		var sha = ""
-		var file = new IFStream.open(fileLocation.file.filename)
-		var size = file.file_stat.size
-		var data = file.read_all
-		file.close	
-		sha = "blob {size}\0{data}"
-		var shafile = sha1(sha.length, sha.to_cstring)
-		return shafile
 	end
 end
 redef class MMMethod
