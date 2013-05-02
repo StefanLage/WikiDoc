@@ -15,7 +15,7 @@ package stream
 
 import string
 
-# Abstract stream class.
+# Abstract stream class.T
 interface IOS
 	# close the stream
 	fun close is abstract
