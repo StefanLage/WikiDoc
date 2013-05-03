@@ -338,7 +338,7 @@ class Array[E]
 		_length = 0
 	end
 	# Create an array of `count' elements.
-	init filled_with(value: E, count: Int) 
+	# Create an array of `count' elements. Test
 	do
 		assert positive: count >= 0
 		_items = calloc_array(count)
