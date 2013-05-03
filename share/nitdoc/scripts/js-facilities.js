@@ -425,6 +425,10 @@ $(document).ready(function() {
 	$(".popover").hide();
 	// Update display
     updateDisplaying();
+    if(sessionStarted != false)	{ 
+    	userB64 = "Basic " + getUserPass("logginNitdoc"); 
+    	githubRepo = $('#repoName').attr('name');
+    }
 
 	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
 		$('pre[class=text_label]').each(function(){ getCommentOfFunction($(this)); });
@@ -565,14 +569,16 @@ $(document).ready(function() {
 				if(commitMessage == ""){ commitMessage = "New commit";}
 				if(sessionStarted == true){	
 					if ($.trim(updateComment) == ''){ this.value = (this.defaultValue ? this.defaultValue : ''); }
-			     	else{ startCommitProcess(); }
+			     	else{ 
+			     		displaySpinner();
+			     		startCommitProcess(); 
+			     	}
 			     }	
 			     $('#modal, #modalQuestion').fadeOut(function() {
 					$('#login').val("");
 					$('#password').val(""); 
 					$('textarea').hide();
-					$('textarea').prev().show();
-					displaySpinner();
+					$('textarea').prev().show();					
 				});
 			    $('a[id=cancelBtn]').hide();
    	 			$('a[id=commitBtn]').hide();
@@ -773,34 +779,57 @@ function loadContent()
 
 function loadFile()
 {
-    getLastCommit();
+    if(getLastCommit() == true){
+		getBaseTree();
+    }
+    else{ return; }
     getBlobsTree(shaBaseTree);
 }
 
+function getCommentLastCommit(path){	
+	var urlRaw;
+	getLastCommit();
+		if (checkCookie() == true) { urlRaw="https://rawgithub.com/"+ userName +"/"+ repoName +"/" + shaLastCommit + "/" + path; }
+		else{ urlRaw="https://rawgithub.com/StefanLage/"+ $('#repoName').attr('name') +"/" + shaLastCommit + "/" + path; }
+
+		$.ajax({  
+	        type: "GET",                
+	        url: urlRaw,        
+	        async: false,
+	        success: function(success)
+	        {
+	        	currentfileContent = success;   
+	        }
+	    });
+	
+}
 
 function getLastCommit() 
 {   
+	var urlHead = '';
+	if(sessionStarted == true){ urlHead = "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName;}
+	else{ urlHead = "https://api.github.com/repos/StefanLage/"+githubRepo+"/git/refs/heads/"+branchName;}
+
     $.ajax({
         beforeSend: function (xhr) { 
             if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET",
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName,
+        url: urlHead,
         dataType:"json",
         async: false,
         success: function(success)
-        {
-            shaLastCommit = success.object.sha;
-            getBaseTree();
+        {        	
+            shaLastCommit = success.object.sha;            
         }
     });
 }
 
 function getBaseTree()
-{
+{	
     $.ajax({ 
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ xhr.setRequestHeader ("Authorization", userB64); }
+            if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits/" + shaLastCommit,
@@ -810,9 +839,13 @@ function getBaseTree()
         {   
             shaBaseTree = success.tree.sha;
             if (state){ setBlob(); }
-            else{ return; }
+            else{ return; }            
+        },
+        error: function(){
+        	return;
         }
-    });
+
+    });    
 }
 
 function setNewTree()
@@ -821,6 +854,7 @@ function setNewTree()
         beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees", 
+        async: false,
         data:'{ "base_tree" : "'+shaBaseTree+'", '+
                 '"tree":[{ '+
                     '"path":"'+ pathFile +'",'+
@@ -828,11 +862,14 @@ function setNewTree()
                     '"type":"blob",'+
                     '"sha": "'+ shaBlob +'"'+
                 '}] '+
-            '}',
+            '}',        
         success: function(success)
         { // si l'appel a bien fonctionné
             shaNewTree = JSON.parse(success).sha;
-            setNewCommit();
+            setNewCommit();        	
+        },
+        error: function(){
+        	return;
         }
     });
 }
@@ -843,14 +880,18 @@ function setNewCommit()
         beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits", 
+        async: false,
         data:'{ "message" : "'+ commitMessage +'", '+
                 '"parents" :"'+shaLastCommit+'",'+ 
                 '"tree": "'+shaNewTree+'"'+
-             '}',
+             '}',        
         success: function(success)
         {
             shaNewCommit = JSON.parse(success).sha;
-            commit();
+            commit();        	
+        },
+        error: function(){
+        	return;
         }
     });
 }
@@ -875,17 +916,22 @@ function setBlob()
 {
     $.ajax({
         beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization",  userB64); },
-        type: "POST", 
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
+        type: "POST",         
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs",         
+        async: false,
         data:'{ "content" : "'+text.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t').replace(/\"/g,'\\"')+'", '+
                 '"encoding" :"utf-8"'+
             '}',
+
         success: function(success)
         {            
             shaBlob = JSON.parse(success).sha;
-            setNewTree();
+            setNewTree();                  
         },
-        error:function(error){ displayMessage('Error : Problem parsing JSON', 40, 40); }
+        error:function(error){ 
+        	displayMessage('Error : Problem parsing JSON', 40, 40); 
+        	return;
+    	}
     });
 }
 
@@ -945,8 +991,7 @@ function replaceComment(newC, fileContent){
 }
 
 function getCommentOfFunction(element){
-	var textC = "";
-	//alert(element.attr("title"));
+	var textC = "";	
 	var numL = element.attr("title");
 	if(numL != null){		         		
 		commentLineStart = numL.split('-')[0] - 1;
@@ -996,44 +1041,10 @@ function startCommitProcess()
 	commentLineStart = numL.split('-')[0] - 1;
 	if(addNewComment == true) { commentLineStart++; }
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
-	state = true;
-	replaceComment(updateComment, currentfileContent);
-	shaLastCommit = lastCommit;	
+	state = true;	
+	replaceComment(updateComment, currentfileContent);	
 	getBaseTree();	
 	editComment = false;
-}
-
-var lastCommit = "";
-var currentfileContent = "";
-function getLastCommit2() 
-{   
-    $.ajax({
-        type: "GET",
-        url: "https://api.github.com/repos/StefanLage/WikiDoc/git/refs/heads/wikidoc",
-        dataType:"json",
-        async: false,
-        success: function(success)
-        {
-        	lastCommit = success.object.sha; 
-        }
-    });
-}
-
-function getCommentLastCommit(path){	
-	getLastCommit2();
-	var urlRaw;
-	if (checkCookie() == true) { urlRaw="https://rawgithub.com/"+ userName +"/"+ repoName +"/" + lastCommit + "/" + path; }
-	else{ urlRaw="https://rawgithub.com/StefanLage/"+ $('#repoName').attr('name') +"/" + lastCommit + "/" + path; }
-
-	$.ajax({  
-        type: "GET",                
-        url: urlRaw,        
-        async: false,
-        success: function(success)
-        {
-        	currentfileContent = success;   
-        }
-    });
 }
 
 function displayLogginModal(){
