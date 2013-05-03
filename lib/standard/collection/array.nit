@@ -257,7 +257,7 @@ end
 # is equivalent with:
 #     a = new Array[Int]
 #     a.push(12)
-#     a.push(32)
+#     a.push(2)
 #     a.push(8)
 class Array[E]
 	super AbstractArray[E]
