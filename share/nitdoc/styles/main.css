@@ -702,8 +702,8 @@ fieldset {
   /*top: 0;
   left: 0;*/
   width : 220px;
-  height:160px;
-  margin-left: -103px;
+  height:280px;
+  margin-left: -102px;
   z-index: 1010;
   display: block;
   max-width: 276px;
@@ -793,6 +793,7 @@ fieldset {
 #liGitHub{
 	float:right;
 	margin-top:-4px;
+	height: 20px;
 }
 
 #liGitHub input {
@@ -803,7 +804,7 @@ fieldset {
 	border: 1px solid #CCC;
 }
 
-#lbloginGit, #lbpasswordGit{
+#lbloginGit, #lbpasswordGit, #lbrepositoryGit, #lbbranchGit{
 	color: black;
 	font-style: normal;
 	margin-left: 10px;
@@ -857,7 +858,11 @@ fieldset {
 }
 
 
-#passwordGit, #loginGit {
+#passwordGit, #loginGit, #repositoryGit, #branchGit {
 	height:30px; 
 	width: 200px;
+}
+
+#imgGitHub{
+	width:20px;
 }

@@ -20,7 +20,6 @@ package nitdoc
 import syntax
 private import utils
 import abstracttool
-import sha 
 
 
 # Store knowledge and facilities to generate files
@@ -28,7 +27,6 @@ class DocContext
 	super AbstractCompiler
 	# Destination directory
 	readable writable var _dir: String = "doc"
-	var github_repo: String = ""
 
 	# Content of a generated file
 	var _stage_context: StageContext = new StageContext(null)
@@ -93,7 +91,6 @@ class DocContext
 	readable var _opt_custom_title: OptionString = new OptionString("Title displayed in the top of the Overview page and as suffix of all page names", "--custom-title")
 	readable var _opt_custom_overview_text: OptionString = new OptionString("Text displayed as introduction of Overview page before the modules list", "--custom-overview-text")
 	readable var _opt_custom_footer_text: OptionString = new OptionString("Text displayed as footer of all pages", "--custom-footer-text")
-	readable var _opt_github_repo_name: OptionString = new OptionString("GitHub repo name", "--git")
 	var sharedir: nullable String
 
 	fun public_only: Bool
@@ -166,14 +163,12 @@ class DocContext
 			"<script type=\"text/javascript\" src=\"scripts/jquery-1.7.1.min.js\"></script>\n" +
 			"<script type=\"text/javascript\" src=\"quicksearch-list.js\"></script>\n" +
 			"<script type=\"text/javascript\" src=\"scripts/js-facilities.js\"></script>\n" +
-			"<script type=\"test/javascript\" src=\"scripts/proto_wikidoc.js\"></script>\n"+	
-			"<script type=\"test/javascript\" src=\"scripts/jquery.modal.js\"></script>\n"+
 			"<link rel=\"stylesheet\" href=\"styles/main.css\" type=\"text/css\"  media=\"screen\" />"
 
 		var custom_items = ""
 		if self._opt_custom_menu_items.value != null then custom_items = self._opt_custom_menu_items.value.as(not null)
 
-		var action_bar = "<header><nav class='main'><ul>{custom_items}<li class=\"current\">Overview</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li><li id=\"liGitHub\" class=\"\"><a id=\"logGitHub\" class=\"btn\" ><img id=\"imgGitHub\" src=\"resources/icons/github-icon_black.png\" /></a><div class=\"popover bottom\"><div class=\"arrow\"></div><div><label id=\"lbloginGit\" for=\"login\">Username</label><input id=\"loginGit\" type=\"text\" name=\"login\"><label id=\"logginMessage\" >Hello <a id=\"githubAccount\" ><strong id=\"nickName\"></strong></a></label></div><div><label id=\"lbpasswordGit\" for=\"password\">Password</label><input id=\"passwordGit\" type=\"password\" name=\"password\"></div><div id=\"divlogIn\"><a id=\"signIn\" >Sign In</a></div></div></li></ul></nav></header>\n"
+		var action_bar = "<header><nav class='main'><ul>{custom_items}<li class=\"current\">Overview</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 							
 		var custom_title = "Nitdoc"
 		if self._opt_custom_title.value != null then custom_title = self._opt_custom_title.value.as(not null)
@@ -187,9 +182,6 @@ class DocContext
 		# generate the index
 		self.filename = "index.html"
 		clear
-		if github_repo == "" then github_repo = args[0].to_s
-		add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Overview | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -234,8 +226,6 @@ class DocContext
 			self.filename = mod.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">{mod.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
-			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")	
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{mod.name} module | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -253,8 +243,6 @@ class DocContext
 			self.filename = c.html_name
 			action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li>{c.global.intro.mmmodule.toplevel_owner.html_link(self)}</li><li class=\"current\">{c.name}</li><li><a href='full-index.html'>Full Index</a></li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 			clear
-			if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-			add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 			add("<!DOCTYPE html>")
 			add("<html><head>{head}<title>{c.name} class | {custom_title}</title></head><body>\n")
 			add(action_bar)
@@ -269,8 +257,6 @@ class DocContext
 		self.filename = "fullindex"
 		action_bar = "<header><nav class='main'><ul>{custom_items}<li><a href='./index.html'>Overview</a></li><li class=\"current\">Full Index</li><li><a href=\"help.html\">Help</a></li></ul></nav></header>\n"
 		clear
-		if github_repo != "" then add("<div id=\"repoName\" name=\"{github_repo}\"></div>")
-		add("<div id=\"modal\" title=\"Login to github\"><form class=\"clearfix\"><div><label for=\"login\">Username</label><input id=\"login\" type=\"text\" maxlength=\"75\" name=\"login\"></div><div><label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\"></div><div><label for=\"repoCommit\">Repo name</label><input id=\"repoCommit\" type=\"text\" name=\"repoCommit\"></div><div><label for=\"branchName\">Branch</label><input id=\"branchName\" type=\"text\" name=\"branchName\"></div><div><label for=\"commitMessage\">Commit message</label><input id=\"commitMessage\" type=\"text\" name=\"commitMessage\"></div><div class=\"social-signup login\"><form ></form></div><form id=\"github-connect-form\" class=\"connect-button\" name=\"login\"><a id=\"loginAction\" title=\"Sign Up with GitHub\"><img src=\"resources/icons/github-icon.png\">Login with <strong>GitHub</strong></a></form></form></div>\n\n")
 		add("<!DOCTYPE html>")
 		add("<html><head>{head}<title>Full Index | {custom_title}</title></head><body>\n")
 		add(action_bar)
@@ -308,24 +294,6 @@ class DocContext
 		end
 	end
 
-	# Return source link for a given location
-	fun get_source(l: Location): String
-	do
-		var s = opt_source.value
-		if s == null then
-			return l.file.filename.simplify_path
-		else
-			# THIS IS JUST UGLY ! (but there is no replace yet)
-			var x = s.split_with("%f")
-			s = x.join(l.file.filename.simplify_path)
-			x = s.split_with("%l")
-			s = x.join(l.line_start.to_s)
-			x = s.split_with("%L")
-			s = x.join(l.line_end.to_s)
-			return s
-		end
-	end
-
 	# Generate a clicable graphiz image using a dot content.
 	# `name' refer to the filename (without extension) and the id name of the map.
 	# `name' must also match the name of the graph in the dot content (eg. digraph NAME {...)
@@ -357,7 +325,6 @@ class DocContext
 		option_context.add_option(opt_custom_menu_items)
 		option_context.add_option(opt_custom_overview_text)
 		option_context.add_option(opt_custom_footer_text)
-		option_context.add_option(opt_github_repo_name)
 	end
 
 	redef fun process_options
@@ -394,9 +361,6 @@ class DocContext
 			end
 
 		end
-		
-		var git = opt_github_repo_name.value
-		if git != null then github_repo = git
 	end
 
 	redef fun handle_property_conflict(lc, impls)
@@ -637,9 +601,7 @@ redef class MMModule
 		var doc = doc
 		if doc != null then
 			dctx.add("<div id=\"description\">\n")
-			dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>\n")
-			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
-			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<pre>{doc.to_html}</pre>\n")
 			dctx.add("</div>\n")
 		end
 
@@ -1109,13 +1071,7 @@ redef class MMLocalProperty
 			end
 		end
 		if introdoc then
-			if is_redef then
-				dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{global.intro.doc.to_html}</pre>")
-			else
-				dctx.add("<pre class=\"text_label\" name=\"{html_name}\" >{global.intro.doc.to_html}</pre>")
-			end
-			dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
-			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<pre>{global.intro.doc.to_html}</pre>")
 		end
 
 		var tlmods = new Array[MMModule]
@@ -1125,8 +1081,7 @@ redef class MMLocalProperty
 			if lcm.mhe < lp.mmmodule then bm = lcm.toplevel_owner
 			if not tlmods.has(bm) then tlmods.add(bm)
 		end
-	
-		var idModule = 1
+
 		for tm in tlmods do
 			# Document the top level property for the current top level module
 			var tlp
@@ -1150,19 +1105,8 @@ redef class MMLocalProperty
 			#dctx.add("<p>TLP: {tm} x {lc} : {tlp.full_name}</p>")
 
 			var doc = tlp.doc
-			var n = tlp.node
 			if doc != null and (not introdoc or global.intro.doc != doc) then
-				#dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>")
-				if n != null then
-					var l = n.location
-					#if is_redef then
-						#	dctx.add("<pre class=\"text_label\" name=\"{mmmodule[intro_class.global][global].global.intro.html_link(dctx)}\" >{doc.to_html}</pre>")
-						#else
-						dctx.add("<pre id=\"{generateShaFile(l)}\" class=\"text_label\" name=\"{dctx.get_source(l)}\" title=\"{l.line_start.to_s}\" >{doc.to_html}</pre>")
-						#end
-				end
-				dctx.add("<a id=\"cancelBtn\">Cancel</a><a id=\"commitBtn\">Commit</a>")
-				dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+				dctx.add("<pre>{doc.to_html}</pre>")
 			end
 			dctx.add("<p>")
 			if tlp.local_class.global != lc.global then
@@ -1171,7 +1115,7 @@ redef class MMLocalProperty
 			if tm != tlp.mmmodule then
 				dctx.add("defined by the module {tlp.mmmodule.html_link(dctx)} ")
 			end
-			#var n = tlp.node
+			var n = tlp.node
 			if n != null then
 				var l = n.location
 				dctx.show_source(l)
@@ -1201,25 +1145,9 @@ redef class MMLocalProperty
 			end
 			dctx.close_stage
 			dctx.add("</p>")
-
 		end
 		dctx.add("</div>")
 		dctx.add("</article>")
-	end
-
-	fun generateShaFile(fileLocation: Location): String 
-	do
-		var sha = ""
-		var file = new IFStream.open(fileLocation.file.filename)
-		var size = file.file_stat.size
-		var data = file.read_all
-		
-		sha = "blob {size}\0{data}\n"
-		file.close
-		# PARSER SHA : 41a4e1fd998df23d2c1229b641a026f52d08a8a1
-		#var shafile = sha1(sha)
-		#return shafile
-		return "47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb"
 	end
 end
 redef class MMMethod
@@ -1468,8 +1396,7 @@ redef class MMLocalClass
 		dctx.add("<section class=\"description\">\n")
 		var doc = doc
 		if doc != null then
-			dctx.add("<pre class=\"text_label\">{doc.to_html}</pre>\n")
-			dctx.add("<textarea rows=\"1\" cols=\"76\" id=\"fileContent\" class=\"edit\"></textarea>")
+			dctx.add("<pre>{doc.to_html}</pre>\n")
 		end
 
 		var cla = new HashSet[MMLocalClass]
@@ -1792,10 +1719,6 @@ end
 redef class MMVirtualType
 	redef fun html_link(dctx) do return property.html_link(dctx)
 end
-
-
-
-
 
 var c = new DocContext
 c.exec_cmd_line

@@ -20,7 +20,6 @@ var githubRepo = "";
 var branchExist = false;
 var userName = "";
 var password = "";
-var idBlob;
 var commitMessage = "";
 var preElement;
 var updateComment;
@@ -424,29 +423,28 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 	$(".popover").hide();
+	// Update display
+    updateDisplaying();
+    if(sessionStarted != false)	{ 
+    	userB64 = "Basic " + getUserPass("logginNitdoc"); 
+    	githubRepo = $('#repoName').attr('name');
+    }
 
 	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
-		$('pre[class=text_label]').each(function(){
-			getCommentOfFunction($(this));
-		});
+		$('pre[class=text_label]').each(function(){ getCommentOfFunction($(this)); });
 	});
 
 	// Cancel creating branch
 	$('#btnCancelBranch').click(function(){
 		editComment -= 1;
    	 	$('#modalQuestion').hide();
-   	 	$('#fade , #modal').fadeOut(function() {
-			$('#fade, a.close').remove();  
-		});
-   	 	//$('textarea').hide();
-   	 	//$('textarea').prev().show();
-		stop();
+   	 	$('#fade , #modal').fadeOut(function() { $('#fade, a.close').remove(); });
+		return;
    	});
 
 	// Create new branch and continu
    	$('#btnCreateBranch').click(function(){
    	 	$('#modalQuestion').hide();
-
    	 	if($('#btnCreateBranch').text() != 'Ok'){
 	   	 	// Create the branch
 	   	 	createBranch();
@@ -459,12 +457,8 @@ $(document).ready(function() {
 		}
 		else
 		{
-			$('#fade , #modalQuestion, #modal').fadeOut(function() {
-				$('#fade, a.close').remove();  
-			});
+			$('#fade , #modalQuestion, #modal').fadeOut(function() { $('#fade, a.close').remove(); });
 		}
-		//$('textarea').hide();
-		//$('textarea').prev().show();
    	});
 
 	// Open edit file
@@ -515,84 +509,42 @@ $(document).ready(function() {
    	 	$(this).prev().prev().show();
    	 });
 
-   	 $('a[id=commitBtn]').click(function(){
-   	 	idBlob = $(this).prev().prev().prev().attr('id');
+   	 $('a[id=commitBtn]').click(function(){   	 	
 		updateComment = $(this).prev().prev().val();
 		commentType = $(this).prev().prev().prev().attr('type');
 
 		if(updateComment == ""){ displayMessage('The comment field is empty!', 40, 45); }
 		else{
-			/*if (checkCookie() == true)
-			{
-				  	$('#login').hide();
-				  	$('#password').hide();
-				  	$('#password2').hide();				  	
-				  	$('#logerName').hide();
-				  	$('#logginName').text("Logged as " + userName );
-				  	$('#logginName').show();
-				  	$('#repoCommit2').css({'margin-top' : '20px'});
-				  	$("#btnGitHub").text("Commit");
-				  	sessionStarted = true;
-
-			}
-			else
-			{
-					sessionStarted = false;
-
-			}*/
-
 			if(sessionStarted == false){
 				displayMessage("You need to be loggued before commit something", 45, 40);
 				displayLogginModal();				
 				return;
 			}
-
-			$('#repoCommit').val($('#repoName').attr('name'));
-	  		$('#branchName').val('wikidoc');
 	  		$('#commitMessage').val('New commit');  		
 	  		pathFile = $(this).prev().prev().prev().attr('tag');	
 			$('#modal').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
 			$('body').append('<div id="fade"></div>');		
-			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-	   	 	//$(this).next().hide();
+			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();	   	 	
 		}
-
-		// Hide itself
-	    //$(this).hide();
-	    // Hide cancelBtn
-	   	//$(this).prev().hide();
-	   	// Hide Edit field
-	   	//$(this).prev().prev().hide();
-	   	// Show comment
-	   	//$(this).prev().prev().prev().show();
    	 });
 
-	
-
    	 $('.btn_close').click(function(){
-   	 	$(this).hide();
-   	 	//$(this).prev().hide();
-   	 	//$(this).prev().prev().show();
-   	 	$(this).next().hide();
-   	 	//$('textarea').hide();
-
+   	 	$(this).hide();   	 	
+   	 	$(this).next().hide();   	 	
    	 	if(editComment > 0){ editComment -= 1; }
    	 });
 
 
 	//Close Popups and Fade Layer
-	$('body').on('click', 'a.close, #fade', function() { // Au clic sur le body...
+	$('body').on('click', 'a.close, #fade', function() {
 		if(editComment > 0){ editComment -= 1; }
 		$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
-		});
-		//$('textarea').hide();
-		//$('textarea').prev().show();		
+		});		
 		$('#modalQuestion').hide();
 	});
 
 	$('#loginAction').click(function(){
-
 		var text;
 		var url;
 		var line;
@@ -602,23 +554,19 @@ $(document).ready(function() {
 			$('.popover').show();
 			return;
 		}		
-		else{ userB64 = "Basic " + getCookie("logginNitdoc"); }
-
-		githubRepo = $('#repoCommit').val();
+		else{ userB64 = "Basic " + getUserPass("logginNitdoc"); }
+		githubRepo = repoName;
 		
 		// Check if repo exist
 		isRepoExisting();
 
-		if(repoExist == true){
-			branchName = $('#branchName').val();
+		if(repoExist == true){			
 			isBranchExisting();
 
-			if(branchExist == true){
-				
+			if(branchExist == true){				
 				editComment -= 1;
 				commitMessage = $('#commitMessage').val();			
 				if(commitMessage == ""){ commitMessage = "New commit";}
-
 				if(sessionStarted == true){	
 					if ($.trim(updateComment) == ''){ this.value = (this.defaultValue ? this.defaultValue : ''); }
 			     	else{ startCommitProcess(); }
@@ -638,8 +586,7 @@ $(document).ready(function() {
 	});
 
 	$('a[class=newComment]').click(function(){
-   	 	addNewComment = true;
-   	 	//alert("toto");
+   	 	addNewComment = true;   	 	
    	 	editComment += 1;
    		// hide comment
         $(this).hide();
@@ -664,8 +611,10 @@ $(document).ready(function() {
 			{
 				userName = $('#loginGit').val();
 				password = $('#passwordGit').val();
+				repoName = $('#repositoryGit').val();
+				branchName = $('#branchGit').val();
 				userB64 = "Basic " +  base64.encode(userName+':'+password);
-				setCookie("logginNitdoc", base64.encode(userName+':'+password), 1);				
+				setCookie("logginNitdoc", base64.encode(userName+':'+password+':'+repoName+':'+branchName), 1);				
 				$('#loginGit').val("");
 				$('#passwordGit').val("");
 			}
@@ -678,34 +627,10 @@ $(document).ready(function() {
 		displayLogginModal();
 
 	});
-
-	// popover demo
-    $("#logGitHub").click(function(){    	
-    	displayLogginModal();
-    }); 
-    
-    updateDisplaying();
-    
-
-/*
-	//var toto = 'https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb';
-	//var toto = "https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/5da68da6f5388abc66593570f17ac2dfe5c50bb2";
-	commentLineStart = 341;
-	commentLineEnd = 353;
-	//getFileContent(toto, "test");
-	//getCommentLastCommit();
-
-	$('pre[class=text_label]').each(function(){
-		//alert($(this).text());
-		getCommentOfFunction($(this));
-	});*/
-
+	
+	// Display Login modal
+    $("#logGitHub").click(function(){ displayLogginModal(); }); 
 });
-
-
-
-
-
 
 /* Parse current URL and return anchor name */
 function currentAnchor() {  
@@ -738,27 +663,16 @@ function preloadFilters() {
 
 /* Hightlight the spoted block */
 function highlightBlock(a) {
-	if(a == undefined) {
-		return;
-	}
-
+	if(a == undefined) { return; }
 	$(".highlighted").removeClass("highlighted");
-	
-	var target = $("#" + a);
-	
-	if(target.is("article")) {
-		target.parent().addClass("highlighted");
-	}
-	
+	var target = $("#" + a);	
+	if(target.is("article")) { target.parent().addClass("highlighted"); }
 	target.addClass("highlighted");
 	target.show();
 }
 
-
-
 function displayMessage(msg, widthDiv, margModal){
-	spinner.stop();
-	//$('#waitCommit').hide();
+	spinner.stop();	
 	$('#modal').hide();
 	$('#btnCreateBranch').css('margin-left',widthDiv + '%');
 	$('#txtQuestion').text(msg);
@@ -777,22 +691,16 @@ function displaySpinner(){
 }
 
 // Check if the repo already exist
-function isRepoExisting(){
+function isRepoExisting(){	
 	$.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != "") { xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo, 
         async:false,
         dataType:'json',
-
-        success: function()
-        {       
-        	repoExist = true;	
-        },
+        success: function(){ repoExist = true; },
         error: function()
         {        	
         	displayMessage('Repo not found !', 35, 45);
@@ -805,17 +713,13 @@ function isRepoExisting(){
 function isBranchExisting(){
 	$.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != "") { xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName, 
         async:false,
         dataType:'json',
-        success: function(){
-        	branchExist = true;
-        },
+        success: function(){ branchExist = true; },
         error: function()
         {
         	branchExist = false;
@@ -837,17 +741,13 @@ function createBranch(){
 	getMasterSha();
 
 	$.ajax({ 
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization", userB64);
-        },
+        beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs", 
         data:'{ "ref" : "refs/heads/'+branchName+'",'+
         		'"sha" : "'+shaMaster+'"'+
             '}',
-        success: function(){
-        	return;
-        },
+        success: function(){ return; },
         error: function(){
         	editComment -= 1;        	
         	displayMessage('Impossible to create the new branch : ' + branchName, 40, 40);
@@ -859,18 +759,13 @@ function getMasterSha()
 {
     $.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/master",
         dataType:"json",
         async: false,
-        success: function(success)
-        {
-            shaMaster = success.object.sha;
-        }
+        success: function(success) { shaMaster = success.object.sha; }
     });
 }
 
@@ -882,7 +777,12 @@ function loadContent()
 
 function loadFile()
 {
-    getLastCommit();
+    if(getLastCommit() == true){
+		getBaseTree();
+    }
+    else{ return; }
+
+
     getBlobsTree(shaBaseTree);
 }
 
@@ -891,29 +791,28 @@ function getLastCommit()
 {   
     $.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName,
         dataType:"json",
         async: false,
         success: function(success)
-        {
+        {        	
             shaLastCommit = success.object.sha;
-            getBaseTree();
+            return true;
+        },
+        error: function(){        	
+        	return false;
         }
     });
 }
 
 function getBaseTree()
-{
+{	
     $.ajax({ 
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits/" + shaLastCommit,
@@ -922,25 +821,23 @@ function getBaseTree()
         success: function(success)
         {   
             shaBaseTree = success.tree.sha;
-            if (state){
-                setBlob();                
-            }
-            else
-            {                
-                return;
-            }
+            if (state){ setBlob(); }
+            else{ return; }            
+        },
+        error: function(){
+        	return;
         }
-    });
+
+    });    
 }
 
 function setNewTree()
 {
     $.ajax({ 
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization", userB64);
-        },
+        beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees", 
+        async: false,
         data:'{ "base_tree" : "'+shaBaseTree+'", '+
                 '"tree":[{ '+
                     '"path":"'+ pathFile +'",'+
@@ -948,11 +845,14 @@ function setNewTree()
                     '"type":"blob",'+
                     '"sha": "'+ shaBlob +'"'+
                 '}] '+
-            '}',
+            '}',        
         success: function(success)
         { // si l'appel a bien fonctionné
             shaNewTree = JSON.parse(success).sha;
-            setNewCommit();
+            setNewCommit();        	
+        },
+        error: function(){
+        	return;
         }
     });
 }
@@ -960,19 +860,21 @@ function setNewTree()
 function setNewCommit()
 {
     $.ajax({ 
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization", userB64);
-        },
+        beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/commits", 
+        async: false,
         data:'{ "message" : "'+ commitMessage +'", '+
                 '"parents" :"'+shaLastCommit+'",'+ 
                 '"tree": "'+shaNewTree+'"'+
-             '}',
+             '}',        
         success: function(success)
         {
             shaNewCommit = JSON.parse(success).sha;
-            commit();
+            commit();        	
+        },
+        error: function(){
+        	return;
         }
     });
 }
@@ -981,21 +883,14 @@ function setNewCommit()
 function commit()
 {
     $.ajax({ 
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization", userB64);
-        },
+        beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization", userB64); },
         type: "POST",
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName, 
         data:'{ "sha" : "'+shaNewCommit+'", '+
                 '"force" :"true"'+
              '}',
-        success: function(success)
-        {         
-            displayMessage('Commit created successfully', 40, 40);
-        },
-        error:function(error){        	
-        	displayMessage('Error ' + JSON.parse(error).object.message, 40, 40);
-        }
+        success: function(success) { displayMessage('Commit created successfully', 40, 40); },
+        error:function(error){ displayMessage('Error ' + JSON.parse(error).object.message, 40, 40); }
     });
 }
 
@@ -1003,23 +898,23 @@ function commit()
 function setBlob()
 {
     $.ajax({
-        beforeSend: function (xhr) { 
-            xhr.setRequestHeader ("Authorization",  userB64);	            
-        },
-        type: "POST", 
-        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs", 
+        beforeSend: function (xhr) { xhr.setRequestHeader ("Authorization",  userB64); },
+        type: "POST",         
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/blobs",         
+        async: false,
         data:'{ "content" : "'+text.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t').replace(/\"/g,'\\"')+'", '+
                 '"encoding" :"utf-8"'+
             '}',
+
         success: function(success)
-        {
-            //alert(success); 
+        {            
             shaBlob = JSON.parse(success).sha;
-            setNewTree();
+            setNewTree();                  
         },
-        error:function(error){
-        	displayMessage('Error : Problem parsing JSON', 40, 40);
-        }
+        error:function(error){ 
+        	displayMessage('Error : Problem parsing JSON', 40, 40); 
+        	return;
+    	}
     });
 }
 
@@ -1029,9 +924,7 @@ function getFileContent(urlFile, newC)
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Accept",  "application/vnd.github-blob.raw");
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if (userB64 != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET", 
         url: urlFile, 
@@ -1039,8 +932,7 @@ function getFileContent(urlFile, newC)
         success: function(success)
         {
             state = true;
-            replaceComment(newC, success);
-            //getCommentOfFunction(success);
+            replaceComment(newC, success);            
         }
     });
 }
@@ -1055,39 +947,25 @@ function replaceComment(newC, fileContent){
 		if(i == commentLineStart){
 			if(addNewComment == true){
         		for(var indexLine=0; indexLine < lines[i+1].length; indexxLine++){        			
-        			if(lines[i+1].substr(indexLine,1) == "\t" || lines[i+1].substr(indexLine,1) == "#"){
-        				text += lines[i+1].substr(indexLine,1);
-        			}
-        			else{
-        				break;
-        			}
+        			if(lines[i+1].substr(indexLine,1) == "\t" || lines[i+1].substr(indexLine,1) == "#"){ text += lines[i+1].substr(indexLine,1); }
+        			else{ break;}
         		}  
         		text += lines[i] + "\n";   		
         	}
         	else{
 				// We change the comment
 			    for(var j = 0; j < lNew; j++){
-			    	if(commentType == 1){
-			    		text += "\t# " + arrayNew[j] + "\n";
-					}
+			    	if(commentType == 1){ text += "\t# " + arrayNew[j] + "\n"; }
 	        		else{
-	        			if(arrayNew[j] == ""){
-	        				text += "#"+"\n";
-	        			}
-	        			else{
-	        				text += "# " + arrayNew[j] + "\n";
-	        			}        		
+	        			if(arrayNew[j] == ""){ text += "#"+"\n"; }
+	        			else{ text += "# " + arrayNew[j] + "\n"; }   		
 	        		}
 	        	}
         	}
         }
         else if(i < commentLineStart || i >= commentLineEnd){
-        	if(i == lines.length-1){
-        		text += lines[i];
-        	}
-        	else{
-        		text += lines[i] + "\n";
-        	}
+        	if(i == lines.length-1){ text += lines[i]; } 
+        	else{ text += lines[i] + "\n"; }
         }
     }
     if(addNewComment == true){
@@ -1106,17 +984,11 @@ function getCommentOfFunction(element){
 	    var lines = currentfileContent.split("\n");
 		for (var i = 0; i < lines.length; i++) {
 			if(i >= commentLineStart-1 && i <= commentLineEnd){			
-				if (lines[i].substr(1,1) == "#"){
-					textC += lines[i].substr(3,lines[i].length) + "\n";
-				}
-				else if(lines[i].substr(0,1) == '#'){
-					textC += lines[i].substr(2,lines[i].length) + "\n";
-				}				
+				if (lines[i].substr(1,1) == "#"){ textC += lines[i].substr(3,lines[i].length) + "\n";}
+				else if(lines[i].substr(0,1) == '#'){ textC += lines[i].substr(2,lines[i].length) + "\n"; }				
 	        }
 	    }    
-	    if (textC != ""){
-	    	element.text(textC);
-	    }    	
+	    if (textC != ""){ element.text(textC); }    	
 	}	
 }
 
@@ -1125,9 +997,7 @@ function getBlobsTree(tree)
 {
     $.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
-                xhr.setRequestHeader ("Authorization", userB64);
-            }
+            if ($("#login").val() != ""){ xhr.setRequestHeader ("Authorization", userB64); }
         },
         type: "GET", 
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/trees/" + tree, 
@@ -1135,20 +1005,13 @@ function getBlobsTree(tree)
         dataType:'json',
         success: function(success)
         {   
-            $(success.tree).each(function(index, object){
-                
+            $(success.tree).each(function(index, object){                
                 if(object.mode == "040000"){
-                    if(recurTree == ""){
-                        recurTree = object.path + "/";
-                    }
-                    else{
-                        recurTree += object.path;
-                    }
+                    if(recurTree == ""){ recurTree = object.path + "/"; }
+                    else{ recurTree += object.path; }
                     getBlobsTree(object.sha);
                 }
-                else{
-                    addLi(object, recurTree + object.path);
-                } 
+                else{ addLi(object, recurTree + object.path); } 
             })
             recurTree = "";
         }
@@ -1160,20 +1023,12 @@ function startCommitProcess()
 {
 	var numL = preElement.attr("title");		         		
 	commentLineStart = numL.split('-')[0] - 1;
-	if(addNewComment == true){
-		commentLineStart++;
-	}
+	if(addNewComment == true) { commentLineStart++; }
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
-
-	/*var pathBlob = 'https://api.github.com/repos/'+userName+'/'+githubRepo+'/github/blobs/' + idBlob;
-	$.when(getFileContent(pathBlob, updateComment)).done(function(){
-		getLastCommit();
-		editComment = false;
-	});*/
-
 	state = true;
+	alert(currentfileContent);
 	replaceComment(updateComment, currentfileContent);
-	shaLastCommit = lastCommit;	
+	//shaLastCommit = lastCommit;	
 	getBaseTree();	
 	editComment = false;
 }
@@ -1195,34 +1050,26 @@ function getLastCommit2()
 }
 
 function getCommentLastCommit(path){	
-
-	getLastCommit2();
+	var urlRaw;
+	if(getLastCommit() == true){	
+	if (checkCookie() == true) { urlRaw="https://rawgithub.com/"+ userName +"/"+ repoName +"/" + shaLastCommit + "/" + path; }
+	else{ urlRaw="https://rawgithub.com/StefanLage/"+ $('#repoName').attr('name') +"/" + shaLastCommit + "/" + path; }
 
 	$.ajax({  
-		/*beforeSend: function (xhr) {             
-        	xhr.setRequestHeader ("Connection", "keep-alive");            
-        }, */
-        type: "GET",
-        //url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/lib/standard/collection/array.nit",
-        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/" + path,
-        //dataType:"json",
+        type: "GET",                
+        url: urlRaw,        
         async: false,
         success: function(success)
         {
-        	//return success.object.sha; 
-        	//alert(success);            	  
         	currentfileContent = success;   
         }
     });
+	}
 }
 
 function displayLogginModal(){
-	if ($('.popover').is(':hidden')) {		
-		$('.popover').show();
-	}
-	else {
-		$('.popover').hide();
-	}
+	if ($('.popover').is(':hidden')) { $('.popover').show(); }
+	else { $('.popover').hide(); }
 	updateDisplaying();
 }
 
@@ -1232,9 +1079,13 @@ function updateDisplaying(){
 	  	$('#loginGit').hide();
 	  	$('#passwordGit').hide();
 	  	$('#lbpasswordGit').hide();		
-	  	$('#lbloginGit').hide();	  			  		 
+	  	$('#lbloginGit').hide();	
+	  	$('#repositoryGit').hide();
+	  	$('#lbrepositoryGit').hide();
+	  	$('#lbbranchGit').hide();  
+	  	$('#branchGit').hide();   			  		 
 	  	$("#liGitHub").attr("class", "current");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-icon.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon-w.png");
 	  	$('#nickName').text(userName);	  	
 	  	$('#githubAccount').attr("href", "https://github.com/"+userName);
 	  	$('#logginMessage').css({'display' : 'block'});
@@ -1248,17 +1099,23 @@ function updateDisplaying(){
 		sessionStarted = false;
 		$('#logginMessage').css({'display' : 'none'});
 		$("#liGitHub").attr("class", "");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-icon_black.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon.png");
 	  	$('#loginGit').val("");
 		$('#passwordGit').val("");
 		$('#nickName').text("");
-  		$('.popover').css({'height' : '160px'});	
+  		$('.popover').css({'height' : '280px'});	
   		$('#logginMessage').css({'display' : 'none'});
+  		$('#repositoryGit').val($('#repoName').attr('name'));
+	  	$('#branchGit').val('wikidoc');  
+	  	$('#signIn').text("Sign In");
 		$('#loginGit').show();
 	  	$('#passwordGit').show();
 	  	$('#lbpasswordGit').show();
-	  	$('#lbloginGit').show();			  		
-	  	$('#signIn').text("Sign In");
+	  	$('#lbloginGit').show();	
+	  	$('#repositoryGit').show();
+	  	$('#lbrepositoryGit').show();
+	  	$('#lbbranchGit').show();  
+	  	$('#branchGit').show();  
 	}
 }
 
@@ -1279,39 +1136,35 @@ function getCookie(c_name)
 {
 	var c_value = document.cookie;
 	var c_start = c_value.indexOf(" " + c_name + "=");
-	if (c_start == -1)
-	  {
-	  c_start = c_value.indexOf(c_name + "=");
-	  }
-	if (c_start == -1)
-	  {
-	  c_value = null;
-	  }
+	if (c_start == -1) { c_start = c_value.indexOf(c_name + "="); }
+	if (c_start == -1) { c_value = null; }
 	else
-	  {
-	  c_start = c_value.indexOf("=", c_start) + 1;
-	  var c_end = c_value.indexOf(";", c_start);
-	  if (c_end == -1)
-	  {
-	c_end = c_value.length;
-	}
-	c_value = unescape(c_value.substring(c_start,c_end));
+	{
+		c_start = c_value.indexOf("=", c_start) + 1;
+		var c_end = c_value.indexOf(";", c_start);
+	  	if (c_end == -1) { c_end = c_value.length; }
+		c_value = unescape(c_value.substring(c_start,c_end));
 	}
 	return c_value;
 }
 
+function getUserPass(c_name){
+	var cookie = base64.decode(getCookie(c_name));
+	return base64.encode(cookie.split(':')[0] + ':' + cookie.split(':')[1]);
+}
+
 function checkCookie()
 {
-	var username=getCookie("logginNitdoc");
-	if (username!=null && username!="")
+	var cookie=getCookie("logginNitdoc");
+	if (cookie!=null && cookie!="")
 	{
-		userName = base64.decode(username).split(':')[0];	  	
+		cookie = base64.decode(cookie);
+		userName = cookie.split(':')[0];
+		repoName = cookie.split(':')[2];		
+		branchName = cookie.split(':')[3];
 	  	return true;
 	}
-	else
-	{
-		return false;
-	}
+	else { return false; }
 }
 
 
