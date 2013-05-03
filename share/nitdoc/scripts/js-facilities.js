@@ -437,7 +437,7 @@ $(document).ready(function() {
    	 	$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
 		});
-		stop();
+		return;
    	});
 
 	// Create new branch and continu
@@ -545,7 +545,6 @@ $(document).ready(function() {
 	});
 
 	$('#loginAction').click(function(){
-
 		var text;
 		var url;
 		var line;
