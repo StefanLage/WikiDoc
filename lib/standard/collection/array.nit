@@ -339,7 +339,6 @@ class Array[E]
 	end
 	# Create an array of `count' elements.
 	# Create an array of `count' elements.
-	do
 		assert positive: count >= 0
 		_items = calloc_array(count)
 		_capacity = count
