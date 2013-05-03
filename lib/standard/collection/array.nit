@@ -336,7 +336,7 @@ class Array[E]
 		_capacity = cap
 		_length = 0
 	end
-	# Create an array of `count' elements.
+	
 	# Create an array of `count' elements. Test
 	do
 		assert positive: count >= 0
