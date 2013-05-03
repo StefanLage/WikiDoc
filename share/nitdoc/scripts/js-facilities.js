@@ -437,15 +437,12 @@ $(document).ready(function() {
    	 	$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
 		});
-   	 	//$('textarea').hide();
-   	 	//$('textarea').prev().show();
 		stop();
    	});
 
 	// Create new branch and continu
    	$('#btnCreateBranch').click(function(){
    	 	$('#modalQuestion').hide();
-
    	 	if($('#btnCreateBranch').text() != 'Ok'){
 	   	 	// Create the branch
 	   	 	createBranch();
@@ -462,8 +459,6 @@ $(document).ready(function() {
 				$('#fade, a.close').remove();  
 			});
 		}
-		//$('textarea').hide();
-		//$('textarea').prev().show();
    	});
 
 	// Open edit file
@@ -520,60 +515,22 @@ $(document).ready(function() {
 
 		if(updateComment == ""){ displayMessage('The comment field is empty!', 40, 45); }
 		else{
-			/*if (checkCookie() == true)
-			{
-				  	$('#login').hide();
-				  	$('#password').hide();
-				  	$('#password2').hide();				  	
-				  	$('#logerName').hide();
-				  	$('#logginName').text("Logged as " + userName );
-				  	$('#logginName').show();
-				  	$('#repoCommit2').css({'margin-top' : '20px'});
-				  	$("#btnGitHub").text("Commit");
-				  	sessionStarted = true;
-
-			}
-			else
-			{
-					sessionStarted = false;
-
-			}*/
-
 			if(sessionStarted == false){
 				displayMessage("You need to be loggued before commit something", 45, 40);
 				displayLogginModal();				
 				return;
 			}
-
-			$('#repoCommit').val($('#repoName').attr('name'));
-	  		$('#branchName').val('wikidoc');
 	  		$('#commitMessage').val('New commit');  		
 	  		pathFile = $(this).prev().prev().prev().attr('tag');	
 			$('#modal').show().prepend('<a class="close"><img src="resources/icons/close.png" class="btn_close" title="Close" alt="Close" /></a>');			 
 			$('body').append('<div id="fade"></div>');		
-			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();
-	   	 	//$(this).next().hide();
+			$('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn();	   	 	
 		}
-
-		// Hide itself
-	    //$(this).hide();
-	    // Hide cancelBtn
-	   	//$(this).prev().hide();
-	   	// Hide Edit field
-	   	//$(this).prev().prev().hide();
-	   	// Show comment
-	   	//$(this).prev().prev().prev().show();
    	 });
 
-	
-
    	 $('.btn_close').click(function(){
-   	 	$(this).hide();
-   	 	//$(this).prev().hide();
-   	 	//$(this).prev().prev().show();
-   	 	$(this).next().hide();
-   	 	//$('textarea').hide();
-
+   	 	$(this).hide();   	 	
+   	 	$(this).next().hide();   	 	
    	 	if(editComment > 0){ editComment -= 1; }
    	 });
 
@@ -583,9 +540,7 @@ $(document).ready(function() {
 		if(editComment > 0){ editComment -= 1; }
 		$('#fade , #modal').fadeOut(function() {
 			$('#fade, a.close').remove();  
-		});
-		//$('textarea').hide();
-		//$('textarea').prev().show();		
+		});		
 		$('#modalQuestion').hide();
 	});
 
@@ -600,23 +555,19 @@ $(document).ready(function() {
 			$('.popover').show();
 			return;
 		}		
-		else{ userB64 = "Basic " + getCookie("logginNitdoc"); }
-
-		githubRepo = $('#repoCommit').val();
+		else{ userB64 = "Basic " + getUserPass("logginNitdoc"); }
+		githubRepo = repoName;
 		
 		// Check if repo exist
 		isRepoExisting();
 
-		if(repoExist == true){
-			branchName = $('#branchName').val();
+		if(repoExist == true){			
 			isBranchExisting();
 
-			if(branchExist == true){
-				
+			if(branchExist == true){				
 				editComment -= 1;
 				commitMessage = $('#commitMessage').val();			
 				if(commitMessage == ""){ commitMessage = "New commit";}
-
 				if(sessionStarted == true){	
 					if ($.trim(updateComment) == ''){ this.value = (this.defaultValue ? this.defaultValue : ''); }
 			     	else{ startCommitProcess(); }
@@ -636,8 +587,7 @@ $(document).ready(function() {
 	});
 
 	$('a[class=newComment]').click(function(){
-   	 	addNewComment = true;
-   	 	//alert("toto");
+   	 	addNewComment = true;   	 	
    	 	editComment += 1;
    		// hide comment
         $(this).hide();
@@ -662,8 +612,10 @@ $(document).ready(function() {
 			{
 				userName = $('#loginGit').val();
 				password = $('#passwordGit').val();
+				repoName = $('#repositoryGit').val();
+				branchName = $('#branchGit').val();
 				userB64 = "Basic " +  base64.encode(userName+':'+password);
-				setCookie("logginNitdoc", base64.encode(userName+':'+password), 1);				
+				setCookie("logginNitdoc", base64.encode(userName+':'+password+':'+repoName+':'+branchName), 1);				
 				$('#loginGit').val("");
 				$('#passwordGit').val("");
 			}
@@ -676,34 +628,14 @@ $(document).ready(function() {
 		displayLogginModal();
 
 	});
-
-	// popover demo
+	
+	// Display Login modal
     $("#logGitHub").click(function(){    	
     	displayLogginModal();
     }); 
-    
+    // Update display
     updateDisplaying();
-    
-
-/*
-	//var toto = 'https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/47dcfea9a3848cfbb9d2dbbd7e1cf0f0fc1979bb';
-	//var toto = "https://api.github.com/repos/StefanLage/WikiDoc/git/blobs/5da68da6f5388abc66593570f17ac2dfe5c50bb2";
-	commentLineStart = 341;
-	commentLineEnd = 353;
-	//getFileContent(toto, "test");
-	//getCommentLastCommit();
-
-	$('pre[class=text_label]').each(function(){
-		//alert($(this).text());
-		getCommentOfFunction($(this));
-	});*/
-
 });
-
-
-
-
-
 
 /* Parse current URL and return anchor name */
 function currentAnchor() {  
@@ -752,11 +684,8 @@ function highlightBlock(a) {
 	target.show();
 }
 
-
-
 function displayMessage(msg, widthDiv, margModal){
-	spinner.stop();
-	//$('#waitCommit').hide();
+	spinner.stop();	
 	$('#modal').hide();
 	$('#btnCreateBranch').css('margin-left',widthDiv + '%');
 	$('#txtQuestion').text(msg);
@@ -775,10 +704,10 @@ function displaySpinner(){
 }
 
 // Check if the repo already exist
-function isRepoExisting(){
+function isRepoExisting(){	
 	$.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
+            if (userB64 != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
             }
         },
@@ -786,7 +715,6 @@ function isRepoExisting(){
         url: "https://api.github.com/repos/"+userName+"/"+githubRepo, 
         async:false,
         dataType:'json',
-
         success: function()
         {       
         	repoExist = true;	
@@ -803,7 +731,7 @@ function isRepoExisting(){
 function isBranchExisting(){
 	$.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
+            if (userB64 != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
             }
         },
@@ -857,7 +785,7 @@ function getMasterSha()
 {
     $.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
+            if (userB64 != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
             }
         },
@@ -889,7 +817,7 @@ function getLastCommit()
 {   
     $.ajax({
         beforeSend: function (xhr) { 
-            if ($("#login").val() != ""){ 
+            if (userB64 != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
             }
         },
@@ -1027,7 +955,7 @@ function getFileContent(urlFile, newC)
     $.ajax({
         beforeSend: function (xhr) { 
             xhr.setRequestHeader ("Accept",  "application/vnd.github-blob.raw");
-            if ($("#login").val() != ""){ 
+            if (userB64 != ""){ 
                 xhr.setRequestHeader ("Authorization", userB64);
             }
         },
@@ -1190,18 +1118,11 @@ function getCommentLastCommit(path){
 	getLastCommit2();
 
 	$.ajax({  
-		/*beforeSend: function (xhr) {             
-        	xhr.setRequestHeader ("Connection", "keep-alive");            
-        }, */
-        type: "GET",
-        //url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/lib/standard/collection/array.nit",
-        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/" + path,
-        //dataType:"json",
+        type: "GET",        
+        url: "https://rawgithub.com/StefanLage/WikiDoc/" + lastCommit + "/" + path,        
         async: false,
         success: function(success)
         {
-        	//return success.object.sha; 
-        	//alert(success);            	  
         	currentfileContent = success;   
         }
     });
@@ -1223,9 +1144,13 @@ function updateDisplaying(){
 	  	$('#loginGit').hide();
 	  	$('#passwordGit').hide();
 	  	$('#lbpasswordGit').hide();		
-	  	$('#lbloginGit').hide();	  			  		 
+	  	$('#lbloginGit').hide();	
+	  	$('#repositoryGit').hide();
+	  	$('#lbrepositoryGit').hide();
+	  	$('#lbbranchGit').hide();  
+	  	$('#branchGit').hide();   			  		 
 	  	$("#liGitHub").attr("class", "current");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-white.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon-w.png");
 	  	$('#nickName').text(userName);	  	
 	  	$('#githubAccount').attr("href", "https://github.com/"+userName);
 	  	$('#logginMessage').css({'display' : 'block'});
@@ -1239,17 +1164,23 @@ function updateDisplaying(){
 		sessionStarted = false;
 		$('#logginMessage').css({'display' : 'none'});
 		$("#liGitHub").attr("class", "");
-	  	$("#imgGitHub").attr("src", "resources/icons/github-black.png");
+	  	$("#imgGitHub").attr("src", "resources/icons/github-icon.png");
 	  	$('#loginGit').val("");
 		$('#passwordGit').val("");
 		$('#nickName').text("");
-  		$('.popover').css({'height' : '160px'});	
+  		$('.popover').css({'height' : '280px'});	
   		$('#logginMessage').css({'display' : 'none'});
+  		$('#repositoryGit').val($('#repoName').attr('name'));
+	  	$('#branchGit').val('wikidoc');  
+	  	$('#signIn').text("Sign In");
 		$('#loginGit').show();
 	  	$('#passwordGit').show();
 	  	$('#lbpasswordGit').show();
-	  	$('#lbloginGit').show();			  		
-	  	$('#signIn').text("Sign In");
+	  	$('#lbloginGit').show();	
+	  	$('#repositoryGit').show();
+	  	$('#lbrepositoryGit').show();
+	  	$('#lbbranchGit').show();  
+	  	$('#branchGit').show();  
 	}
 }
 
@@ -1291,12 +1222,20 @@ function getCookie(c_name)
 	return c_value;
 }
 
+function getUserPass(c_name){
+	var cookie = base64.decode(getCookie(c_name));
+	return base64.encode(cookie.split(':')[0] + ':' + cookie.split(':')[1]);
+}
+
 function checkCookie()
 {
-	var username=getCookie("logginNitdoc");
-	if (username!=null && username!="")
+	var cookie=getCookie("logginNitdoc");
+	if (cookie!=null && cookie!="")
 	{
-		userName = base64.decode(username).split(':')[0];	  	
+		cookie = base64.decode(cookie);
+		userName = cookie.split(':')[0];
+		repoName = cookie.split(':')[2];		
+		branchName = cookie.split(':')[3];
 	  	return true;
 	}
 	else
