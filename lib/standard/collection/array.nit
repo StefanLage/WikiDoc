@@ -260,7 +260,6 @@ end
 #     a.push(32)
 #     a.push(8)
 #     a.push(12)
-#     a.push(13)
 class Array[E]
 	super AbstractArray[E]
 	super ArrayCapable[E]
