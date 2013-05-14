@@ -31,6 +31,10 @@ pre {
 	overflow: auto;
 }
 
+pre:hover{
+	cursor: hand; cursor: pointer;
+}
+
 hr {
 	background-color: #DDD;
 	height: 1px;
@@ -804,13 +808,13 @@ fieldset {
 	border: 1px solid #CCC;
 }
 
-#lbloginGit, #lbpasswordGit, #lbrepositoryGit, #lbbranchGit{
+#lbloginGit, #lbpasswordGit, #lbrepositoryGit, #lbbranchGit, #lbBranches{
 	color: black;
 	font-style: normal;
 	margin-left: 10px;
 	margin-top: 10px;	
 }
-#logginMessage {
+#logginMessage, #lbBranches{
 	color: black;
 	font-style: normal;
 	text-align: center;
@@ -865,4 +869,16 @@ fieldset {
 
 #imgGitHub{
 	width:20px;
+}
+
+#dropBranches{
+	font-size: 12px;
+	height:20px; 
+}
+
+#listBranches{
+	display:block;
+	text-align:center;
+	margin-top: 15px;
+	margin-bottom: 15px;	
 }

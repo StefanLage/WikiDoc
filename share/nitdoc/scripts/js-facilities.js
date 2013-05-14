@@ -1,7 +1,7 @@
 var state = false;
 
 // SHA
-var shaLastCommit;
+var shaLastCommit = "";
 var shaBaseTree;
 var shaNewTree;
 var shaNewCommit;
@@ -29,6 +29,10 @@ var commentLineEnd;
 var commentType;
 var addNewComment = false;
 var sessionStarted = false;
+var currentfileContent = '';
+
+var listBranches = '';
+
 
 var opts = {
 	  lines: 11, // The number of lines to draw
@@ -423,16 +427,10 @@ $(document).ready(function() {
 	$('a[id=commitBtn]').hide();
 	$('a[id=cancelBtn]').hide();
 	$(".popover").hide();
+	githubRepo = $('#repoName').attr('name');
 	// Update display
     updateDisplaying();
-    if(sessionStarted != false)	{ 
-    	userB64 = "Basic " + getUserPass("logginNitdoc"); 
-    	githubRepo = $('#repoName').attr('name');
-    }
-
-	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
-		$('pre[class=text_label]').each(function(){ getCommentOfFunction($(this)); });
-	});
+    reloadComment();
 
 	// Cancel creating branch
 	$('#btnCancelBranch').click(function(){
@@ -464,7 +462,7 @@ $(document).ready(function() {
 	// Open edit file
    	$('pre[class=text_label]').click(function(){
    			// the customer is loggued ?
-			if(sessionStarted == false || userName == ""){
+			if(sessionStarted == false || userB64 == ""){
 				// No => nothing happen
 				return;
 			}
@@ -488,7 +486,7 @@ $(document).ready(function() {
         	// Show commit button
         	$(this).next().next().next().show();
         	// Add text in edit box      
-        	if($(this).next().val() == ""){ $(this).next().val(adapt); }
+        	if($(this).next().val() == "" || $(this).next().val() != adapt){ $(this).next().val(adapt); }
         	// Resize edit box 
     		$(this).next().height($(this).next().prop("scrollHeight"));
     		// Select it
@@ -498,15 +496,7 @@ $(document).ready(function() {
     });
 
    	 $('a[id=cancelBtn]').click(function(){
-   	 	if(editComment > 0){ editComment -= 1; }
-   	 	// Hide itself
-   	 	$(this).hide();
-   	 	// Hide commitBtn
-   	 	$(this).next().hide();
-   	 	// Hide Textarea
-   	 	$(this).prev().hide();
-   	 	// Show comment
-   	 	$(this).prev().prev().show();
+   	 	closeEditing($(this));
    	 });
 
    	 $('a[id=commitBtn]').click(function(){   	 	
@@ -605,7 +595,7 @@ $(document).ready(function() {
         preElement = $(this);  
    	 });
 
-	// Sign In an github user or Log out him
+	// Sign In an github user or Log out him	
 	$("#signIn").click(function(){
 		if(sessionStarted == false){
 			if($('#loginGit').val() == "" || $('#passwordGit').val() == ""){ displayMessage('The comment field is empty!', 40, 45); }
@@ -619,19 +609,32 @@ $(document).ready(function() {
 				setCookie("logginNitdoc", base64.encode(userName+':'+password+':'+repoName+':'+branchName), 1);				
 				$('#loginGit').val("");
 				$('#passwordGit').val("");
+				reloadComment();
 			}
 		}	
 		else
 		{
 			// Delete cookie and reset settings
 			del_cookie("logginNitdoc");
+			closeAllCommentInEdtiting();
 		}	
 		displayLogginModal();
 
 	});
 	
 	// Display Login modal
-    $("#logGitHub").click(function(){ displayLogginModal(); }); 
+    $("#logGitHub").click(function(){ displayLogginModal(); });    
+    $("#dropBranches").change(function () {		
+		$("#dropBranches option:selected").each(function () {			
+			if(branchName != $(this).text()){
+				branchName = $(this).text();					
+			}			
+		});		
+		$.when(updateCookie(userName, password, repoName, branchName)).done(function(){
+			closeAllCommentInEdtiting();
+			reloadComment();
+		});
+	});
 });
 
 /* Parse current URL and return anchor name */
@@ -771,24 +774,16 @@ function getMasterSha()
     });
 }
 
-function loadContent()
-{
-    state = false;
-    loadFile();
-}
-
-function loadFile()
-{
-    if(getLastCommit() == true){
-		getBaseTree();
-    }
-    else{ return; }
-    getBlobsTree(shaBaseTree);
+function reloadComment(){
+	$.when(getCommentLastCommit($('pre[class=text_label]').attr('tag'))).done(function(){		
+		$('pre[class=text_label]').each(function(){ getCommentOfFunction($(this)); });
+	});
 }
 
 function getCommentLastCommit(path){	
 	var urlRaw;
 	getLastCommit();
+	if(shaLastCommit != ""){
 		if (checkCookie() == true) { urlRaw="https://rawgithub.com/"+ userName +"/"+ repoName +"/" + shaLastCommit + "/" + path; }
 		else{ urlRaw="https://rawgithub.com/StefanLage/"+ $('#repoName').attr('name') +"/" + shaLastCommit + "/" + path; }
 
@@ -801,14 +796,17 @@ function getCommentLastCommit(path){
 	        	currentfileContent = success;   
 	        }
 	    });
-	
+	}
 }
 
 function getLastCommit() 
 {   
-	var urlHead = '';
+	var urlHead = '';	
 	if(sessionStarted == true){ urlHead = "https://api.github.com/repos/"+userName+"/"+githubRepo+"/git/refs/heads/"+branchName;}
-	else{ urlHead = "https://api.github.com/repos/StefanLage/"+githubRepo+"/git/refs/heads/"+branchName;}
+	else{ 
+		// TODO: get url of the original repo.
+		return;
+	}
 
     $.ajax({
         beforeSend: function (xhr) { 
@@ -1034,6 +1032,36 @@ function getBlobsTree(tree)
     });
 }
 
+// Get list of branches
+function getListBranches()
+{
+	cleanListBranches();
+    $.ajax({
+        beforeSend: function (xhr) { 
+            if ($("#login").val() != ""){ xhr.setRequestHeader ("Authorization", userB64); }
+        },
+        type: "GET", 
+        url: "https://api.github.com/repos/"+userName+"/"+githubRepo+"/branches", 
+        async:false,
+        dataType:'json',
+        success: function(success)
+        {   
+            for(var branch in success) { 
+            	var selected = '';
+            	if(branchName == success[branch].name){        	
+            		selected = 'selected';	
+            	}            	
+            	$('#dropBranches').append('<option value="" '+ selected +'>' + success[branch].name + '</option>');	            	            
+            }
+        }
+    });
+}
+
+// Delete all option in the list
+function cleanListBranches(){
+	$('#dropBranches').children("option").remove();
+}
+
 // Init process to commit the new comment
 function startCommitProcess()
 {
@@ -1041,14 +1069,17 @@ function startCommitProcess()
 	commentLineStart = numL.split('-')[0] - 1;
 	if(addNewComment == true) { commentLineStart++; }
 	commentLineEnd = (commentLineStart + preElement.text().split('\n').length) - 1;
-	state = true;	
+	state = true;		
 	replaceComment(updateComment, currentfileContent);	
 	getBaseTree();	
 	editComment = false;
 }
 
 function displayLogginModal(){
-	if ($('.popover').is(':hidden')) { $('.popover').show(); }
+	if ($('.popover').is(':hidden')) { 
+		if(sessionStarted == true){ getListBranches(); }
+		$('.popover').show(); 		
+	}
 	else { $('.popover').hide(); }
 	updateDisplaying();
 }
@@ -1056,6 +1087,7 @@ function displayLogginModal(){
 function updateDisplaying(){
 	if (checkCookie() == true)
 	{
+		userB64 = "Basic " + getUserPass("logginNitdoc"); 
 	  	$('#loginGit').hide();
 	  	$('#passwordGit').hide();
 	  	$('#lbpasswordGit').hide();		
@@ -1063,16 +1095,18 @@ function updateDisplaying(){
 	  	$('#repositoryGit').hide();
 	  	$('#lbrepositoryGit').hide();
 	  	$('#lbbranchGit').hide();  
-	  	$('#branchGit').hide();   			  		 
+	  	$('#branchGit').hide();	  
+	  	$('#listBranches').show();   			  		 
 	  	$("#liGitHub").attr("class", "current");
 	  	$("#imgGitHub").attr("src", "resources/icons/github-icon-w.png");
 	  	$('#nickName').text(userName);	  	
 	  	$('#githubAccount').attr("href", "https://github.com/"+userName);
 	  	$('#logginMessage').css({'display' : 'block'});
-	  	$('#logginMessage').css({'text-align' : 'center'});	
-	  	$('.popover').css({'height' : '80px'});	
+	  	$('#logginMessage').css({'text-align' : 'center'});		  		
+	  	$('.popover').css({'height' : '120px'});
 	  	$('#signIn').text("Sign out");	
-	  	sessionStarted = true;
+	  	sessionStarted = true;	  	
+	  	reloadComment();
 	}
 	else
 	{
@@ -1096,6 +1130,7 @@ function updateDisplaying(){
 	  	$('#lbrepositoryGit').show();
 	  	$('#lbbranchGit').show();  
 	  	$('#branchGit').show();  
+	  	$('#listBranches').hide();
 	}
 }
 
@@ -1140,6 +1175,7 @@ function checkCookie()
 	{
 		cookie = base64.decode(cookie);
 		userName = cookie.split(':')[0];
+		password = cookie.split(':')[1];
 		repoName = cookie.split(':')[2];		
 		branchName = cookie.split(':')[3];
 	  	return true;
@@ -1147,8 +1183,34 @@ function checkCookie()
 	else { return false; }
 }
 
+function updateCookie(user, pwd, repo, branch){
+	if(checkCookie() == true){
+		branchName = branch;
+		setCookie("logginNitdoc", base64.encode(user+':'+pwd+':'+repo+':'+branch), 1);	
+	}
+}
 
+function closeAllCommentInEdtiting(){
+	$('a[id=cancelBtn]').each(function(){
+		closeEditing($(this));
+ 	});
+}
 
+function closeEditing(tag){
+	if(editComment > 0){ editComment -= 1; }
+ 	// Hide itself
+ 	tag.hide();
+ 	// Hide commitBtn
+ 	tag.next().hide();
+ 	// Hide Textarea
+ 	tag.prev().hide();
+ 	// Show comment
+ 	tag.prev().prev().show();
+}
+
+/*
+* Base64
+*/
 base64 = {};
 base64.PADCHAR = '=';
 base64.ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
