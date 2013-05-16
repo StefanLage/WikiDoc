@@ -352,7 +352,7 @@ class Array[E]
 			self[i] = value
 			i += 1
 		end
-	end
+	#  Create a array filled with a given native array.Test
 
 	# Create a array filled with a given native array.
 	init with_native(nat: NativeArray[E], size: Int)
