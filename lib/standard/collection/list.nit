@@ -173,7 +173,7 @@ class List[E]
 	# Build an empty list.
 	init do end
 	
-	# Build a list filled with the items of `coll'.
+	# Build a list filled with the items of `coll'. test
 	init from(coll: Collection[E]) do append(coll)
 
 	# The first node of the list
