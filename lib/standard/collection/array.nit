@@ -314,7 +314,7 @@ class Array[E]
 		if _capacity > 0 then _items.copy_to(a, _length)
 		_items = a
 		_capacity = c
-	#  Create an empty array.
+	#  Create an empty array. Test
 
 	# Create an empty array.
 	init
