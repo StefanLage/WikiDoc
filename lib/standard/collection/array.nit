@@ -321,7 +321,7 @@ class Array[E]
 	do
 		_capacity = 0
 		_length = 0
-	end
+	#  Create an array with some `items'.
 
 	# Create an array with some `items'.
 	init with_items(objects: E...)
