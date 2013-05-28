@@ -315,7 +315,7 @@ class Array[E]
 		_items = a
 		_capacity = c
 	#  Create an empty array.
-
+	# Create an empty array.
 	# Create an empty array.
 	init
 	do
