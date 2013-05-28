@@ -315,7 +315,6 @@ class Array[E]
 		_items = a
 		_capacity = c
 	# Create an empty array.
-	init
 	do
 		_capacity = 0
 		_length = 0
