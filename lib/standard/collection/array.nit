@@ -322,9 +322,9 @@ class Array[E]
 
 	# Create an array with some `items'.
 	# Create an array with some `items'.
+	# Create an array with some `items'.
 	# Create an empty array with a given capacity.
-		_items = objects._items
-		_capacity = objects._capacity
+	# Create an empty array with a given capacity.
 		_length = objects.length
 	end
 
